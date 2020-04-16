@@ -7,7 +7,9 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const request = require("request");
 
+let sPass = "";
 // Load your modules here, e.g.:
 // const fs = require("fs");
 
@@ -17,6 +19,7 @@ class Openwrt extends utils.Adapter {
      * @param {Partial<ioBroker.AdapterOptions>} [options={}]
      */
     constructor(options) {
+        // @ts-ignore
         super({
             ...options,
             name: "openwrt",
@@ -28,60 +31,44 @@ class Openwrt extends utils.Adapter {
         this.on("unload", this.onUnload.bind(this));
     }
 
+    decrypt(key, value) {
+        let result = "";
+        for (let i = 0; i < value.length; ++i) {
+            result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
+        }
+        this.log.debug("client_secret decrypt ready");
+        return result;
+    }
+
     /**
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
-        // Initialize your adapter here
+        this.log.info("##### ADAPTER starting #####");
+        //Get encrypted Password
+        this.getForeignObject("system.config", (err, obj) => {
+            if (obj && obj.native && obj.native.secret) {
+                //noinspection JSUnresolvedVariable
+                // @ts-ignore
+                sPass = this.decrypt(obj.native.secret, this.config.pwd);
+            } else {
+                //noinspection JSUnresolvedVariable
+                // @ts-ignore
+                sPass = this.decrypt("Zgfr56gFe87jJOM", this.config.pwd);
+            }
 
+            // Start Timer here
+
+            this.log.info("Loaded encrypted Password!");
+
+            this.fHTTPGetToken();
+        });
+    
         // Reset the connection indicator during startup
         this.setState("info.connection", false, true);
 
-        // The adapters config (in the instance object everything under the attribute "native") is accessible via
-        // this.config:
-        this.log.info("config option1: " + this.config.option1);
-        this.log.info("config option2: " + this.config.option2);
-
-        /*
-        For every state in the system there has to be also an object of type state
-        Here a simple template for a boolean variable named "testVariable"
-        Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-        */
-        await this.setObjectAsync("testVariable", {
-            type: "state",
-            common: {
-                name: "testVariable",
-                type: "boolean",
-                role: "indicator",
-                read: true,
-                write: true,
-            },
-            native: {},
-        });
-
-        // in this template all states changes inside the adapters namespace are subscribed
         this.subscribeStates("*");
 
-        /*
-        setState examples
-        you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-        */
-        // the variable testVariable is set to true as command (ack=false)
-        await this.setStateAsync("testVariable", true);
-
-        // same thing, but the value is flagged "ack"
-        // ack should be always set to true if the value is received from or acknowledged from the target system
-        await this.setStateAsync("testVariable", { val: true, ack: true });
-
-        // same thing, but the state is deleted after 30s (getState will return null afterwards)
-        await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
-
-        // examples for the checkPassword/checkGroup functions
-        let result = await this.checkPasswordAsync("admin", "iobroker");
-        this.log.info("check user admin pw iobroker: " + result);
-
-        result = await this.checkGroupAsync("admin", "admin");
-        this.log.info("check group user admin group admin: " + result);
     }
 
     /**
@@ -144,7 +131,72 @@ class Openwrt extends utils.Adapter {
     // 	}
     // }
 
+    fValidateHTTPResult(error, response, sFuncName) {
+        if (error) {
+            this.log.warn("##### fHTTP" + sFuncName + " ERROR: " + error.toString());
+            return false;  //Error
+        } else {
+            if (!(response.statusCode == 200)) {
+                this.log.info("##### fHTTP" + sFuncName + " HTTPCode: " + response.statusCode);
+            } 
+        }
+
+        return true;  //NO Error
+    }
+
+    fHTTPGetToken(){
+        const oReqBody = {
+            "id": 1,
+            "method": "login",
+            "params": ["root",sPass]
+        };
+        const oReqOpt = {
+            "method": "GET",
+            "url": "http://192.168.10.1/cgi-bin/luci/rpc/auth",
+            "headers": { "Content-Type": ["application/json", "text/plain"] },
+            "body": JSON.stringify(oReqBody)            
+        };  
+
+        this.log.info("HTTPRequest getToken");
+        request(oReqOpt, (error, response, body) => {
+            if (this.fValidateHTTPResult(error,response,"GetToken")) {
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    this.log.info("Token: " + oBody.result);
+                    this.config.option1
+                }else{
+                    this.log.info("##### fHTTPRequest ResultError: " + body);
+                }
+            }
+        });
+    }
+
+    fHTTPGetUptime() {
+        const oReqBody = {
+            "method": "uptime"
+        };
+        const oReqOpt = {
+            "method": "POST",
+            // @ts-ignore
+            "url": "http://192.168.10.1/cgi-bin/luci/rpc/sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        this.log.info("HTTPRequest GetUptime");
+        request(sReqOpt, (error, response, body) => {
+          
+            
+            this.log.info("HTTP-Code: " + response.statusCode);
+            this.log.info("Body: " + body);
+        });
+
+    }
 }
+
+
 
 // @ts-ignore parent is a valid property on module
 if (module.parent) {
