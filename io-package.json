@@ -1,0 +1,102 @@
+{
+    "common": {
+        "name": "openwrt",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "openwrt",
+        "titleLang": {
+            "en": "openwrt",
+            "de": "openwrt",
+            "ru": "OpenWRT",
+            "pt": "openwrt",
+            "nl": "openwrt",
+            "fr": "openwrt",
+            "it": "OpenWRT",
+            "es": "openwrt",
+            "pl": "openwrt",
+            "zh-cn": "Openwrt"
+        },
+        "desc": {
+            "en": "Interact with the openwrt RPC API",
+            "de": "Interagiere mit der openwrt RPC API",
+            "ru": "Взаимодействовать с openwrt RPC API",
+            "pt": "Interaja com a API RPC openwrt",
+            "nl": "Interactie met de openwrt RPC API",
+            "fr": "Interagir avec l'API openwrt RPC",
+            "it": "Interagisci con l'API RPC openwrt",
+            "es": "Interactúa con la API openwrt RPC",
+            "pl": "Interakcja z openwrt RPC API",
+            "zh-cn": "与openwrt RPC API交互"
+        },
+        "authors": [
+            "Schnup89 <tobias_tsafi@gmx.de>"
+        ],
+        "keywords": [
+            "openwrt",
+            "network",
+            "api",
+            "router"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "openwrt.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/Schnup89/ioBroker.openwrt/master/admin/openwrt.png",
+        "readme": "https://github.com/Schnup89/ioBroker.openwrt/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "infrastructure",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "supportCustoms": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "native": {
+        "option1": true,
+        "option2": "42"
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}
