@@ -9,6 +9,7 @@
 const utils = require("@iobroker/adapter-core");
 const request = require("request");
 
+// eslint-disable-next-line no-unused-vars
 let tmr_GetValues = null;
 
 let sPass = "";
@@ -274,7 +275,13 @@ class Openwrt extends utils.Adapter {
         tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 1000);
 
         //GetUptime
-        this.fHTTPGetUptime();
+        this.fHTTPGetSysinfo();
+
+        //GetHostname
+        this.fHTTPGetHostname();
+
+        //GetInterfaces
+        this.fHTTPGetInterfaces();
     }
 
 
@@ -289,9 +296,10 @@ class Openwrt extends utils.Adapter {
         this.setState(oValues.name, sValue);
     }
 
-    fHTTPGetUptime() {  //System-Uptime in Seconds
+    fHTTPGetSysinfo() {  //System-Informations
         const oReqBody = {
-            "method": "uptime"
+            "method": "exec",
+            "params": [ "ubus call system info" ]
         };
         const oReqOpt = {
             "method": "POST",
@@ -303,15 +311,69 @@ class Openwrt extends utils.Adapter {
         };
 
         request(oReqOpt, async (error, response, body) => {
-            if (await this.fValidateHTTPResult(error,response,"GetUptime")) {
+            if (await this.fValidateHTTPResult(error,response,"GetSysinfo")) {
                 const oBody = JSON.parse(body);
                 if (!oBody.error && oBody.result) {
-                    const oSetObj = { name: "sys.uptime", type: "number", role: "time", read: true, write: false };
+                    this.fSetValue2State(oBody.result.uptime, { name: "sys.uptime", type: "number", role: "time", read: true, write: false }); 
+                    this.fSetValue2State(oBody.result.load[0], { name: "sys.load1M", type: "number", role: "value", read: true, write: false }); 
+                    this.fSetValue2State(oBody.result.load[1], { name: "sys.load5M", type: "number", role: "value", read: true, write: false }); 
+                    this.fSetValue2State(oBody.result.load[2], { name: "sys.load15M", type: "number", role: "value", read: true, write: false }); 
+                    //this.fSetValue2State(oBody.result, oSetObj);
+                }
+            }
+        });
+    }
+
+    fHTTPGetHostname() {  //Hostname
+        const oReqBody = {
+            "method": "hostname"
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetHostname")) {
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    const oSetObj = { name: "sys.hostname", type: "text", role: "text", read: true, write: false };
                     this.fSetValue2State(oBody.result, oSetObj);
                 }
             }
         });
+    }
 
+    fHTTPGetInterfaces() {  //Get Interfaces
+        const oReqBody = {
+            "method": "net.devices"
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetInterfaces")) {
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    oBody.result.forEach(oDev => {
+                        //eth1.1 would result crappy, we replace . with /
+                        oDev = oDev.replace(".","/");
+                        const oSetObj = { name: "net.devices." + oDev + ".exists", type: "boolean", role: "indicator", read: true, write: false };
+                        this.fSetValue2State(true, oSetObj);
+                    });
+                }
+            }
+        });
     }
 }
 
