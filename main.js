@@ -278,14 +278,17 @@ class Openwrt extends utils.Adapter {
         //Set Timer for next Update
         tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 1000);
 
-        //GetUptime
+        //GetSysteminfo
         this.fHTTPGetSysinfo();
 
-        //GetHostname
+        //GetSystemBoardinfo
         this.fHTTPGetSysBoard();
 
         //GetInterfaces
         this.fHTTPGetInterfaces();
+
+        //GetWANINFO
+        this.fHTTPGetWANInfo();
     }
 
 
@@ -321,7 +324,7 @@ class Openwrt extends utils.Adapter {
                 const oBody = JSON.parse(body);
                 if (!oBody.error && oBody.result) {
                     const oSysInfo = JSON.parse(oBody.result);
-                    if(typeof oSysInfo.uptime != "undefined") this.fSetValue2State(oSysInfo.uptime, { name: "sys.uptime", type: "number", role: "time", read: true, write: false }); 
+                    if(typeof oSysInfo.uptime != "undefined") this.fSetValue2State(oSysInfo.uptime, { name: "sys.uptime", type: "number", role: "value", read: true, write: false }); 
                     if(typeof oSysInfo.load != "undefined") {
                         this.fSetValue2State(oSysInfo.load[1], { name: "sys.load1M", type: "number", role: "value", read: true, write: false }); 
                         this.fSetValue2State(oSysInfo.load[2], { name: "sys.load5M", type: "number", role: "value", read: true, write: false }); 
@@ -333,7 +336,6 @@ class Openwrt extends utils.Adapter {
                     if(typeof oSysInfo.memory.buffered != "undefined") this.fSetValue2State(oSysInfo.memory.buffered, { name: "sys.memory.buffered", type: "number", role: "value", read: true, write: false }); 
                     if(typeof oSysInfo.swap.total != "undefined") this.fSetValue2State(oSysInfo.swap.total, { name: "sys.swap.total", type: "number", role: "value", read: true, write: false }); 
                     if(typeof oSysInfo.swap.free != "undefined") this.fSetValue2State(oSysInfo.swap.free, { name: "sys.swap.free", type: "number", role: "value", read: true, write: false });
-                    //this.fSetValue2State(oBody.result, oSetObj);
                 }
             }
         });
@@ -374,6 +376,62 @@ class Openwrt extends utils.Adapter {
             }
         });
     }
+
+    fHTTPGetWANInfo() {  //WAN-Information
+        const oReqBody = {
+            "method": "exec",
+            "params": [ "ubus call network.interface.wan status" ]
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetWANInfo")) {
+                //bug... output \n\t\ seems broken, delete it
+                body = this.replaceAll(body,"\n\t","");
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    const oWANInfo = JSON.parse(oBody.result);
+                    if(typeof oWANInfo.up != "undefined") this.fSetValue2State(oWANInfo.up, { name: "wan.up", type: "boolean", role: "indicator", read: true, write: false }); 
+                    if(typeof oWANInfo.uptime != "undefined") this.fSetValue2State(oWANInfo.uptime, { name: "wan.uptime", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oWANInfo.available != "undefined") this.fSetValue2State(oWANInfo.available, { name: "wan.available", type: "boolean", role: "indicator", read: true, write: false }); 
+                    if(typeof oWANInfo.l3_device != "undefined") this.fSetValue2State(oWANInfo.l3_device, { name: "wan.l3_device", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oWANInfo.proto != "undefined") this.fSetValue2State(oWANInfo.proto, { name: "wan.proto", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oWANInfo.device != "undefined") this.fSetValue2State(oWANInfo.device, { name: "wan.device", type: "text", role: "text", read: true, write: false }); 
+                    let nObjCnt = 0;
+                    if (typeof oWANInfo["ipv4-address"] != "undefined") oWANInfo["ipv4-address"].forEach(oAddr => {
+                        if (typeof oAddr.address != "undefined") this.fSetValue2State(oAddr.address, { name: "wan.ipv4address." + nObjCnt.toString() + ".address", type: "text", role: "text", read: true, write: false });
+                        if (typeof oAddr.mask != "undefined") this.fSetValue2State(oAddr.mask, { name: "wan.ipv4address." + nObjCnt.toString() + ".mask", type: "number", role: "value", read: true, write: false });
+                        if (typeof oAddr.ptpaddress != "undefined") this.fSetValue2State(oAddr.ptpaddress, { name: "wan.ipv4address." + nObjCnt.toString() + ".ptpaddress", type: "text", role: "text", read: true, write: false });
+                        nObjCnt ++;
+                    });
+                    nObjCnt = 0;
+                    if (typeof oWANInfo["ipv6-address"] != "undefined") oWANInfo["ipv6-address"].forEach(oAddr => {
+                        if (typeof oAddr.address != "undefined") this.fSetValue2State(oAddr.address, { name: "wan.ipv6address." + nObjCnt.toString() + ".address", type: "text", role: "text", read: true, write: false });
+                        if (typeof oAddr.mask != "undefined") this.fSetValue2State(oAddr.mask, { name: "wan.ipv6address." + nObjCnt.toString() + ".mask", type: "number", role: "value", read: true, write: false });
+                        if (typeof oAddr.ptpaddress != "undefined") this.fSetValue2State(oAddr.ptpaddress, { name: "wan.ipv6address." + nObjCnt.toString() + ".ptpaddress", type: "text", role: "text", read: true, write: false });
+                        nObjCnt ++;
+                    });
+                    nObjCnt = 0;
+                    if (typeof oWANInfo.route != "undefined") oWANInfo.route.forEach(oRoute => {
+                        if (typeof oRoute.target != "undefined") this.fSetValue2State(oRoute.target, { name: "wan.route." + nObjCnt.toString() + ".target", type: "text", role: "text", read: true, write: false });
+                        if (typeof oRoute.mask != "undefined") this.fSetValue2State(oRoute.mask, { name: "wan.route." + nObjCnt.toString() + ".mask", type: "number", role: "value", read: true, write: false });
+                        if (typeof oRoute.nexthop != "undefined") this.fSetValue2State(oRoute.nexthop, { name: "wan.route." + nObjCnt.toString() + ".nexthop", type: "text", role: "text", read: true, write: false });
+                        if (typeof oRoute.source != "undefined") this.fSetValue2State(oRoute.source, { name: "wan.route." + nObjCnt.toString() + ".source", type: "text", role: "text", read: true, write: false });
+                        nObjCnt ++;
+                    });
+                }
+            }
+        });
+    }
+
+
 
     /*
     fHTTPGetHostname() {  //Hostname
@@ -418,11 +476,48 @@ class Openwrt extends utils.Adapter {
                 const oBody = JSON.parse(body);
                 if (!oBody.error && oBody.result) {
                     oBody.result.forEach(oDev => {
-                        //eth1.1 would result crappy, we replace . with /
-                        oDev = oDev.replace(".","/");
+                        oDev = oDev.replace(".","/"); //eth1.1 would result crappy in subfolders, we replace . with /
                         const oSetObj = { name: "net.devices." + oDev + ".exists", type: "boolean", role: "indicator", read: true, write: false };
                         this.fSetValue2State(true, oSetObj);
+                        oDev = oDev.replace("/","."); //replace it to original for api query( / to .)
+                        this.fHTTPGetInterfaceDetail(oDev);
                     });
+                }
+            }
+        });
+    }
+
+    fHTTPGetInterfaceDetail(sDevName) {  //Interface-Detail-Information
+        const oReqBody = {
+            "method": "exec",
+            "params": ["ubus call network.device status '{ \"name\": \"" + sDevName + "\" }'" ]
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetInterfaceDetail for "+sDevName)) {
+                //bug... output \n\t\ seems broken, delete it
+                body = this.replaceAll(body,"\n\t","");
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    const oDevInfo = JSON.parse(oBody.result);
+                    sDevName = sDevName.replace(".","/"); //eth1.1 would result crappy in subfolders, we replace . with /
+                    if(typeof oDevInfo.type != "undefined") this.fSetValue2State(oDevInfo.type, { name: "net.devices." + sDevName + ".type", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oDevInfo.up != "undefined") this.fSetValue2State(oDevInfo.up, { name: "net.devices." + sDevName + ".up", type: "boolean", role: "indicator", read: true, write: false }); 
+                    if(typeof oDevInfo.speed != "undefined") this.fSetValue2State(oDevInfo.speed, { name: "net.devices." + sDevName + ".speed", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oDevInfo.autoneg != "undefined") this.fSetValue2State(oDevInfo.autoneg, { name: "net.devices." + sDevName + ".autoneg", type: "boolean", role: "indicator", read: true, write: false }); 
+                    if(typeof oDevInfo.mtu != "undefined") this.fSetValue2State(oDevInfo.mtu, { name: "net.devices." + sDevName + ".mtu", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oDevInfo.macaddr != "undefined") this.fSetValue2State(oDevInfo.macaddr, { name: "net.devices." + sDevName + ".macaddr", type: "text", role: "text", read: true, write: false }); 
+                    for (const [key, value] of Object.entries(oDevInfo.statistics)) {  
+                        this.fSetValue2State(value, { name: "net.devices." + sDevName + "."+key, type: "number", role: "value", read: true, write: false }); 
+                    }
                 }
             }
         });

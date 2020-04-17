@@ -39,6 +39,7 @@
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
             $('#fTestURL').on('click', (function () {
+                alert(document.getElementById("inp_password").value);
                 //Add last / if not exists on URL
                 if ((document.getElementById("inp_url").value).slice(-1) != "/") {
                     document.getElementById("inp_url").value = document.getElementById("inp_url").value + "/";
@@ -73,9 +74,7 @@
                         document.getElementById("fTestAuth").style="background-color: red;";
                     }
                 });
-            }));
-
-            
+            }));          
 
             $('#inp_password').on('keydown', (function () {
                 $('#fTestAuth').removeClass('disabled');
@@ -89,6 +88,9 @@
                 $('.value').each(function () {
                     var $key = $(this);
                     var id = $key.attr('id');
+                    if (id === 'inp_password') {
+                        settings[id] = decrypt(secret, settings[id]);
+                    }
                     if ($key.attr('type') === 'checkbox') {
                         // do not call onChange direct, because onChange could expect some arguments
                         $key.prop('checked', settings[id])
@@ -127,8 +129,7 @@
                         obj[$this.attr('id')] = parseInt($this.val(), 10);
                         break;
                     default:
-                        obj[$this.attr('id')] =
-                            $this.data('crypt') && $this.val() ? encrypt(secret, $this.val()) : $this.val();
+                        obj[$this.attr('id')] = $this.data('crypt') && $this.val() ? encrypt(secret, $this.val()) : $this.val();
                         break;
                 }
             });
@@ -143,7 +144,7 @@
     <div class="m adapter-container">
 
         <div class="row">
-            <div class="col s12 m4 l2">
+            <div class="col s12 m6 l4">
                 <img src="openwrt.png" class="logo">
             </div>
         </div>
@@ -154,7 +155,7 @@
         </div>
 
          <div class="row">
-            <div class="input-field col s12 m6 l2">
+            <div class="input-field col s12 m6 l4">
                 <input class="value" type="text" id="inp_url" />
                 <label for="inp_url" class="translate">inp_url_short</label>
                 <i><span class="translate">inp_url_long</span></i>
@@ -166,12 +167,12 @@
         </div>
 
         <div class="row">
-            <div class="input-field col s4 m2 l1">
+            <div class="input-field col s12 m6 l2">
                 <input class="value" type="text" id="inp_username" />
                 <label for="inp_username" class="translate">inp_username_short</label>
                 <i><span class="translate">inp_username_long</span></i>
             </div>
-            <div class="input-field col s4 m2 l1">
+            <div class="input-field col s12 m6 l2">
                 <input class="value" data-crypt="1" type="password" id="inp_password" />
                 <label for="inp_password" class="translate">inp_password_short</label>
                 <i><span class="translate">inp_password_long</span></i>
@@ -182,7 +183,7 @@
         </div>
 
         <div class="row">
-            <div class="input-field col s12 m6 l2">
+            <div class="input-field col s12 m6 l4">
                 <input class="value" type="number" id="inp_refresh" />
                 <label for="inp_refresh" class="translate">inp_refresh_short</label>
                 <i><span class="translate">inp_refresh_long</span></i>

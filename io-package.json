@@ -16,18 +16,18 @@
                 "zh-cn": "首次出版"
             }
         },
-        "title": "openwrt",
+        "title": "OpenWRT",
         "titleLang": {
-            "en": "openwrt",
-            "de": "openwrt",
-            "ru": "OpenWRT",
-            "pt": "openwrt",
-            "nl": "openwrt",
-            "fr": "openwrt",
-            "it": "OpenWRT",
-            "es": "openwrt",
-            "pl": "openwrt",
-            "zh-cn": "Openwrt"
+            "en": "OpenWrt",
+            "de": "OpenWrt",
+            "ru": "OpenWrt",
+            "pt": "OpenWrt",
+            "nl": "OpenWrt",
+            "fr": "OpenWrt",
+            "it": "OpenWrt",
+            "es": "OpenWrt",
+            "pl": "OpenWrt",
+            "zh-cn": "OpenWrt"
         },
         "desc": {
             "en": "Interact with the openwrt RPC API",
