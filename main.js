@@ -43,6 +43,10 @@ class Openwrt extends utils.Adapter {
         return result;
     }
 
+    replaceAll(str, find, replace) {
+        return str.replace(new RegExp(find, "g"), replace);
+    }
+
     /**
      * Is called when databases are connected and adapter received configuration.
      */
@@ -278,7 +282,7 @@ class Openwrt extends utils.Adapter {
         this.fHTTPGetSysinfo();
 
         //GetHostname
-        this.fHTTPGetHostname();
+        this.fHTTPGetSysBoard();
 
         //GetInterfaces
         this.fHTTPGetInterfaces();
@@ -296,7 +300,7 @@ class Openwrt extends utils.Adapter {
         this.setState(oValues.name, sValue);
     }
 
-    fHTTPGetSysinfo() {  //System-Informations
+    fHTTPGetSysinfo() {  //System-Information
         const oReqBody = {
             "method": "exec",
             "params": [ "ubus call system info" ]
@@ -312,18 +316,66 @@ class Openwrt extends utils.Adapter {
 
         request(oReqOpt, async (error, response, body) => {
             if (await this.fValidateHTTPResult(error,response,"GetSysinfo")) {
+                //bug... output \n\t\ seems broken, delete it
+                body = this.replaceAll(body,"\n\t","");
                 const oBody = JSON.parse(body);
                 if (!oBody.error && oBody.result) {
-                    this.fSetValue2State(oBody.result.uptime, { name: "sys.uptime", type: "number", role: "time", read: true, write: false }); 
-                    this.fSetValue2State(oBody.result.load[0], { name: "sys.load1M", type: "number", role: "value", read: true, write: false }); 
-                    this.fSetValue2State(oBody.result.load[1], { name: "sys.load5M", type: "number", role: "value", read: true, write: false }); 
-                    this.fSetValue2State(oBody.result.load[2], { name: "sys.load15M", type: "number", role: "value", read: true, write: false }); 
+                    const oSysInfo = JSON.parse(oBody.result);
+                    if(typeof oSysInfo.uptime != "undefined") this.fSetValue2State(oSysInfo.uptime, { name: "sys.uptime", type: "number", role: "time", read: true, write: false }); 
+                    if(typeof oSysInfo.load != "undefined") {
+                        this.fSetValue2State(oSysInfo.load[1], { name: "sys.load1M", type: "number", role: "value", read: true, write: false }); 
+                        this.fSetValue2State(oSysInfo.load[2], { name: "sys.load5M", type: "number", role: "value", read: true, write: false }); 
+                        this.fSetValue2State(oSysInfo.load[3], { name: "sys.load15M", type: "number", role: "value", read: true, write: false });
+                    }
+                    if(typeof oSysInfo.memory.total != "undefined") this.fSetValue2State(oSysInfo.memory.total, { name: "sys.memory.total", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oSysInfo.memory.free != "undefined") this.fSetValue2State(oSysInfo.memory.free, { name: "sys.memory.free", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oSysInfo.memory.shared != "undefined") this.fSetValue2State(oSysInfo.memory.shared, { name: "sys.memory.shared", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oSysInfo.memory.buffered != "undefined") this.fSetValue2State(oSysInfo.memory.buffered, { name: "sys.memory.buffered", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oSysInfo.swap.total != "undefined") this.fSetValue2State(oSysInfo.swap.total, { name: "sys.swap.total", type: "number", role: "value", read: true, write: false }); 
+                    if(typeof oSysInfo.swap.free != "undefined") this.fSetValue2State(oSysInfo.swap.free, { name: "sys.swap.free", type: "number", role: "value", read: true, write: false });
                     //this.fSetValue2State(oBody.result, oSetObj);
                 }
             }
         });
     }
 
+    fHTTPGetSysBoard() {  //System-Information
+        const oReqBody = {
+            "method": "exec",
+            "params": [ "ubus call system board" ]
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetSysBoard")) {
+                //bug... output \n\t\ seems broken, delete it
+                body = this.replaceAll(body,"\n\t","");
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    const oSysInfo = JSON.parse(oBody.result);
+                    if(typeof oSysInfo.kernel != "undefined") this.fSetValue2State(oSysInfo.kernel, { name: "sys.kernel", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.hostname != "undefined") this.fSetValue2State(oSysInfo.hostname, { name: "sys.hostname", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.system != "undefined") this.fSetValue2State(oSysInfo.system, { name: "sys.system", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.model != "undefined") this.fSetValue2State(oSysInfo.model, { name: "sys.model", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.board_name != "undefined") this.fSetValue2State(oSysInfo.board_name, { name: "sys.board_name", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.release.distribution != "undefined") this.fSetValue2State(oSysInfo.release.distribution, { name: "sys.release.distribution", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.release.version != "undefined") this.fSetValue2State(oSysInfo.release.version, { name: "sys.release.version", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.release.revision != "undefined") this.fSetValue2State(oSysInfo.release.revision, { name: "sys.release.revision", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.release.target != "undefined") this.fSetValue2State(oSysInfo.release.target, { name: "sys.release.target", type: "text", role: "text", read: true, write: false }); 
+                    if(typeof oSysInfo.release.description != "undefined") this.fSetValue2State(oSysInfo.release.description, { name: "sys.release.description", type: "text", role: "text", read: true, write: false }); 
+                }
+            }
+        });
+    }
+
+    /*
     fHTTPGetHostname() {  //Hostname
         const oReqBody = {
             "method": "hostname"
@@ -346,7 +398,7 @@ class Openwrt extends utils.Adapter {
                 }
             }
         });
-    }
+    }*/
 
     fHTTPGetInterfaces() {  //Get Interfaces
         const oReqBody = {
