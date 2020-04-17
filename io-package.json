@@ -52,6 +52,9 @@
         ],
         "license": "MIT",
         "platform": "Javascript/Node.js",
+        "messagebox": true,
+        "message": true,
+        "subscribe": "messagebox",
         "main": "main.js",
         "icon": "openwrt.png",
         "enabled": true,
@@ -72,7 +75,11 @@
         ]
     },
     "native": {
-        "sToken": ""
+        "sToken": "",
+        "inp_url": "http://openwrt/cgi-bin/luci/rpc/",
+        "inp_username": "admin",
+        "inp_password": "",
+        "inp_refresh": 1
     },
     "objects": [],
     "instanceObjects": [

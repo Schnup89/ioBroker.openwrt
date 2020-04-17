@@ -38,10 +38,52 @@
 
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
+            $('#fTestURL').on('click', (function () {
+                //Add last / if not exists on URL
+                if ((document.getElementById("inp_url").value).slice(-1) != "/") {
+                    document.getElementById("inp_url").value = document.getElementById("inp_url").value + "/";
+                } 
+                //Send Check-Request with FormValues to main.js and wait for response
+                sendTo(null, 'checkURL', { 
+                    sURL: document.getElementById("inp_url").value
+                }, function (response) {
+                    if (response == "true") {
+                        document.getElementById("fTestURL").style="background-color: green;";
+                    } else {
+                        document.getElementById("fTestURL").style="background-color: red;";
+                        showMessage("Check ioBroker Log");
+                    }
+                });
+            }));
+
+            $('#fTestAuth').on('click', (function () {
+                //Add last / if not exists on URL
+                if ((document.getElementById("inp_url").value).slice(-1) != "/") {
+                    document.getElementById("inp_url").value = document.getElementById("inp_url").value + "/";
+                } 
+                //Send Check-Request with FormValues to main.js and wait for response
+                sendTo(null, 'checkAuth', { 
+                    sURL: document.getElementById("inp_url").value,
+                    sUser: document.getElementById("inp_username").value,
+                    sPass: document.getElementById("inp_password").value
+                }, function (response) {
+                    if (response == "true") {
+                        document.getElementById("fTestAuth").style="background-color: green;";
+                    } else {
+                        document.getElementById("fTestAuth").style="background-color: red;";
+                    }
+                });
+            }));
+
+            
+
+            $('#inp_password').on('keydown', (function () {
+                $('#fTestAuth').removeClass('disabled');
+            }));
+
             socket.emit('getObject', 'system.config', function (err, obj) {
                 secret = (obj.native ? obj.native.secret : '') || 'Zgfr56gFe87jJOM';
-                //loadHelper(settings, onChange);
-            
+
                 // example: select elements with id=key and class=value and insert value
                 if (!settings) return;
                 $('.value').each(function () {
@@ -63,6 +105,11 @@
                 onChange(false);
                 // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
                 if (M) M.updateTextFields();
+
+                //Enable Auth BTN if password field is empty
+                if (document.getElementById("inp_password").value == "") {
+                    $('#fTestAuth').removeClass('disabled');
+                }
             });
         }
 
@@ -101,12 +148,44 @@
             </div>
         </div>
 
-    
-        <div class="row"></div>
-            <div class="input-field col s12 m6 l4">
-                <input class="value" data-crypt="1" type="password" id="pwd" />
-                <label for="pwd" class="translate">password</label>
-                <span class="translate">pve login password</span>
+        <div class="row">
+            <p class="translate title">lab_general</p>
+            <p class="translate info">text_general</p>
+        </div>
+
+         <div class="row">
+            <div class="input-field col s12 m6 l2">
+                <input class="value" type="text" id="inp_url" />
+                <label for="inp_url" class="translate">inp_url_short</label>
+                <i><span class="translate">inp_url_long</span></i>
+            </div>
+
+            <div class="col s6">
+                <a id="fTestURL" class="btn"><span class="translate">btn_checkURL</span></a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s4 m2 l1">
+                <input class="value" type="text" id="inp_username" />
+                <label for="inp_username" class="translate">inp_username_short</label>
+                <i><span class="translate">inp_username_long</span></i>
+            </div>
+            <div class="input-field col s4 m2 l1">
+                <input class="value" data-crypt="1" type="password" id="inp_password" />
+                <label for="inp_password" class="translate">inp_password_short</label>
+                <i><span class="translate">inp_password_long</span></i>
+            </div>
+            <div class="col s6">
+                <a id="fTestAuth" class="btn disabled"><span class="translate">btn_checkAuth</span></a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12 m6 l2">
+                <input class="value" type="number" id="inp_refresh" />
+                <label for="inp_refresh" class="translate">inp_refresh_short</label>
+                <i><span class="translate">inp_refresh_long</span></i>
             </div>
         </div>
 

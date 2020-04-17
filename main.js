@@ -9,6 +9,8 @@
 const utils = require("@iobroker/adapter-core");
 const request = require("request");
 
+let tmr_GetValues = null;
+
 let sPass = "";
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -27,7 +29,7 @@ class Openwrt extends utils.Adapter {
         this.on("ready", this.onReady.bind(this));
         this.on("objectChange", this.onObjectChange.bind(this));
         this.on("stateChange", this.onStateChange.bind(this));
-        // this.on("message", this.onMessage.bind(this));
+        this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
     }
 
@@ -44,28 +46,50 @@ class Openwrt extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
-        this.log.info("##### ADAPTER starting #####");
-        //Get encrypted Password
-        this.getForeignObject("system.config", (err, obj) => {
-            if (obj && obj.native && obj.native.secret) {
-                //noinspection JSUnresolvedVariable
-                // @ts-ignore
-                sPass = this.decrypt(obj.native.secret, this.config.pwd);
-            } else {
-                //noinspection JSUnresolvedVariable
-                // @ts-ignore
-                sPass = this.decrypt("Zgfr56gFe87jJOM", this.config.pwd);
-            }
+        let bPreCheckErr = false;   //We can't stop the adapter since we need it 4 url and auth check. Make preCheck, if error found don't run main functions 
 
-            // Start Timer here
-
-            this.log.info("Loaded encrypted Password!");
-
-            this.fHTTPGetToken();
-        });
-    
         // Reset the connection indicator during startup
         this.setState("info.connection", false, true);
+
+        this.log.info("##### LOAD CONFIG #####");
+        
+        //Check refresh interval field, if its's not set, we set it
+        if (!Number.isInteger(this.config.inp_refresh)) {
+            this.config.inp_refresh = 5;
+            this.log.info("Update-Interval overwritten to: " + this.config.inp_refresh.toString());
+            //bPreCheckErr = true;   If this is not defined we do it! Dont stop :)
+        }
+        //Check path field, if it's not set, we dont run
+        if (this.config.inp_url.length == 0) {
+            this.log.info("## URL emtpy, only Path-Check available");
+            bPreCheckErr = true;  //Dont run
+        }
+        //Check user field, if it's not set, we dont run
+        if (this.config.inp_username.length == 0) {
+            this.log.info("## User emtpy, only Path-Check available");
+            bPreCheckErr = true;  //Dont run
+        }
+
+        //Get encrypted Password
+        const oConf = await this.getForeignObjectAsync("system.config");
+        if (oConf && oConf.native && oConf.native.secret) {
+            // @ts-ignore
+            sPass = this.decrypt(oConf.native.secret, this.config.inp_password);
+        } else {
+            sPass = this.decrypt("Zgfr56gFe87jJOM", this.config.inp_password);
+        }
+        this.log.info("Decrypted the encrypted password!");
+
+        
+        this.log.info("##### RUN ADAPTER ##### ");
+        if (!bPreCheckErr) {
+            //Get first Time Token
+            await this.fHTTPGetToken();
+            //Then begin Update Timer
+            this.fHTTPGetValues();
+        }else{
+            this.log.info("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
+        }
 
         this.subscribeStates("*");
 
@@ -119,78 +143,173 @@ class Openwrt extends utils.Adapter {
     //  * Using this method requires "common.message" property to be set to true in io-package.json
     //  * @param {ioBroker.Message} obj
     //  */
-    // onMessage(obj) {
-    // 	if (typeof obj === "object" && obj.message) {
-    // 		if (obj.command === "send") {
-    // 			// e.g. send email or pushover or whatever
-    // 			this.log.info("send command");
+    async onMessage(obj) {
+        if (typeof obj === "object") {
+            //Check if URL Reachable
+            if (obj.command === "checkURL") {
+                //save Command Result true/false
+                const bCheckRes = await this.fHTTPCheckURL(obj.message);
+                //send Result back
+                if (obj.callback) this.sendTo(obj.from, obj.command, bCheckRes.toString(), obj.callback);
+            }
 
-    // 			// Send response in callback if required
-    // 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-    // 		}
-    // 	}
-    // }
+            //Check if AUTH OK
+            if (obj.command === "checkAuth") {
+                //save Command Result true/false
+                const bCheckRes = await this.fHTTPCheckAuth(obj.message);
+                //send Result back
+                if (obj.callback) this.sendTo(obj.from, obj.command, bCheckRes.toString(), obj.callback);
+            }
+        }
+    }
 
-    fValidateHTTPResult(error, response, sFuncName) {
+    fHTTPCheckURL(oCheckVals) {
+        return new Promise((resolve) => {
+            const oReqOpt = {
+                "method": "GET",
+                "url": oCheckVals.sURL + "auth"         
+            };  
+
+            this.log.info("Called fHTTPCheckURL");
+            request(oReqOpt, (error, response, body) => {
+                if (error) {
+                    this.log.warn("fHTTPCheckURL Unexpected Error: " + error);
+                    resolve(false);
+                } else { 
+                    if (!body.includes("jsonrpc")) {
+                        this.log.warn("fHTTPCheckURL 'jsonrpc' not found in response.");
+                        resolve(false);
+                    } else {
+                        this.log.info("fHTTPCheckURL success");
+                        resolve(true);
+                    }
+                }
+            });
+        });
+    }
+
+    fHTTPCheckAuth(oCheckVals) {
+        return new Promise((resolve) => {
+            const oReqBody = {
+                "id": 1,
+                "method": "login",
+                "params": [oCheckVals.sUser,oCheckVals.sPass]
+            };
+            const oReqOpt = {
+                "method": "GET",
+                "url": oCheckVals.sURL + "auth",
+                "headers": { "Content-Type": ["application/json", "text/plain"] },
+                "body": JSON.stringify(oReqBody)            
+            };   
+            this.log.info("Called fHTTPCheckAuth");
+            request(oReqOpt, (error, response, body) => {
+                if (this.fValidateHTTPResult(error,response,"CheckAuth")) {
+                    const oBody = JSON.parse(body);
+                    if (!oBody.error && oBody.result) {
+                        this.log.info("fHTTPCheckAuth success");
+                        resolve(true);
+                    }else{
+                        this.log.info("fHTTPCheckAuth ResultError: " + body);
+                        resolve(false);
+                    }
+                } else {
+                    //Log Message printed in fValidateHTTPResult function
+                    resolve(false);
+                }
+                resolve(true);
+            });
+        });
+    }
+
+
+    async fValidateHTTPResult(error, response, sFuncName) {
         if (error) {
             this.log.warn("##### fHTTP" + sFuncName + " ERROR: " + error.toString());
             return false;  //Error
         } else {
             if (!(response.statusCode == 200)) {
                 this.log.info("##### fHTTP" + sFuncName + " HTTPCode: " + response.statusCode);
+                if (response.statusCode == 403) {
+                    await this.fHTTPGetToken();
+                }
+                return false;  //Error
             } 
         }
 
         return true;  //NO Error
     }
 
-    fHTTPGetToken(){
-        const oReqBody = {
-            "id": 1,
-            "method": "login",
-            "params": ["root",sPass]
-        };
-        const oReqOpt = {
-            "method": "GET",
-            "url": "http://192.168.10.1/cgi-bin/luci/rpc/auth",
-            "headers": { "Content-Type": ["application/json", "text/plain"] },
-            "body": JSON.stringify(oReqBody)            
-        };  
+    fHTTPGetToken() {  //NOT ASYNC 
+        return new Promise((resolve) => {
+            const oReqBody = {
+                "id": 1,
+                "method": "login",
+                "params": ["root",sPass]
+            };
+            const oReqOpt = {
+                "method": "GET",
+                "url": this.config.inp_url + "auth",
+                "headers": { "Content-Type": ["application/json", "text/plain"] },
+                "body": JSON.stringify(oReqBody)            
+            };  
 
-        this.log.info("HTTPRequest getToken");
-        request(oReqOpt, (error, response, body) => {
-            if (this.fValidateHTTPResult(error,response,"GetToken")) {
-                const oBody = JSON.parse(body);
-                if (!oBody.error && oBody.result) {
-                    this.log.info("Token: " + oBody.result);
-                    this.config.option1
-                }else{
-                    this.log.info("##### fHTTPRequest ResultError: " + body);
+            this.log.info("Called fHTTGetToken");
+            request(oReqOpt, (error, response, body) => {
+                if (this.fValidateHTTPResult(error,response,"GetToken")) {
+                    const oBody = JSON.parse(body);
+                    if (!oBody.error && oBody.result) {
+                        this.log.info("Saved new Token: " + oBody.result);
+                        this.config.sToken =  oBody.result;
+                    }else{
+                        this.log.info("##### fHTTPGetToken ResultError: " + body);
+                    }
                 }
-            }
+                resolve(true);
+            });
         });
     }
 
-    fHTTPGetUptime() {
+    fHTTPGetValues() {
+        //Set Timer for next Update
+        tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 1000);
+
+        //GetUptime
+        this.fHTTPGetUptime();
+    }
+
+
+    //##################### DATA FUNCTION
+
+    fSetValue2State(sValue, oValues){
+        this.setObjectNotExists(oValues.name, {
+            type: "state",
+            common: oValues,
+            native: {}  
+        });
+        this.setState(oValues.name, sValue);
+    }
+
+    fHTTPGetUptime() {  //System-Uptime in Seconds
         const oReqBody = {
             "method": "uptime"
         };
         const oReqOpt = {
             "method": "POST",
-            // @ts-ignore
-            "url": "http://192.168.10.1/cgi-bin/luci/rpc/sys?auth="+this.config.sToken,
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
             "headers": {
                 "Content-Type": ["application/json", "text/plain"]
             },
             "body": JSON.stringify(oReqBody)            
         };
 
-        this.log.info("HTTPRequest GetUptime");
-        request(sReqOpt, (error, response, body) => {
-          
-            
-            this.log.info("HTTP-Code: " + response.statusCode);
-            this.log.info("Body: " + body);
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"GetUptime")) {
+                const oBody = JSON.parse(body);
+                if (!oBody.error && oBody.result) {
+                    const oSetObj = { name: "sys.uptime", type: "number", role: "time", read: true, write: false };
+                    this.fSetValue2State(oBody.result, oSetObj);
+                }
+            }
         });
 
     }
