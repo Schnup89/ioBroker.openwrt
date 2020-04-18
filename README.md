@@ -73,7 +73,7 @@ If you want more Informations create a "Pull Request" or open an Issue with the 
 ```bash
 OpenWrt Version: [18.06] (It will be displayed at the bottom of the Login-Page on Webinterface)
 ubus-Command: [ubus call system info]
-ubss-Command Output: [
+ubus-Command Output: [
 {
         "localtime": 1587207263,
         "uptime": 996265,
