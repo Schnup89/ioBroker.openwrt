@@ -19,7 +19,8 @@
     "url": "https://github.com/Schnup89/ioBroker.openwrt"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.3.0"
+    "@iobroker/adapter-core": "^2.3.0",
+    "request": "*"
   },
   "devDependencies": {
     "@iobroker/testing": "^2.2.0",
