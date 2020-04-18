@@ -96,7 +96,7 @@ class Openwrt extends utils.Adapter {
             this.log.info("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
         }
 
-        this.subscribeStates("*");
+        //this.subscribeStates("*");
 
     }
 
@@ -117,7 +117,7 @@ class Openwrt extends utils.Adapter {
      * Is called if a subscribed object changes
      * @param {string} id
      * @param {ioBroker.Object | null | undefined} obj
-     */
+     
     onObjectChange(id, obj) {
         if (obj) {
             // The object was changed
@@ -132,7 +132,7 @@ class Openwrt extends utils.Adapter {
      * Is called if a subscribed state changes
      * @param {string} id
      * @param {ioBroker.State | null | undefined} state
-     */
+   
     onStateChange(id, state) {
         if (state) {
             // The state was changed
