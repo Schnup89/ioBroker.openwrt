@@ -1,4 +1,4 @@
-![Logo](admin/openwrt.png =35x35)
+<img src="admin/openwrt.png" width="35">
 # ioBroker.openwrt
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.openwrt.svg)](https://www.npmjs.com/package/iobroker.openwrt)
