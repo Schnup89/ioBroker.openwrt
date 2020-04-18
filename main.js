@@ -294,7 +294,7 @@ class Openwrt extends utils.Adapter {
 
     fHTTPGetValues() {
         //Set Timer for next Update
-        tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 1000);
+        tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 60000);
 
         //GetSysteminfo
         this.fHTTPGetSysinfo();
