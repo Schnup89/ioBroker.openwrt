@@ -22,11 +22,11 @@ systemDictionary = {
         "en": "OpenWRT RPC API Configuration",
         "de": "OpenWRT RPC API Konfiguration"
     },
-    "inp_url_short": {
+    "lab_url_short": {
         "en": "URL",
         "de": "URL"
     },
-    "inp_url_long": {
+    "lab_url_long": {
         "en": "URL to RPC  |  e.g. http://192.168.1.1/cgi-bin/luci/rpc/",
         "de": "URL zu RPC-Dienst  |  z.B. http://192.168.1.1/cgi-bin/luci/rpc/"
     },
@@ -34,19 +34,19 @@ systemDictionary = {
         "en": "Check URL",
         "de": "URL prüfen"
     },
-    "inp_username_short": {
+    "lab_username_short": {
         "en": "Username",
         "de": "Benutzername"
     },
-    "inp_username_long": {
+    "lab_username_long": {
         "en": "OpenWRT username",
         "de": "OpenWRT Benutzername"
     },
-    "inp_password_short": {
+    "lab_password_short": {
         "en": "OpenWRT password",
         "de": "OpenWRT Passwort"
     },
-    "inp_password_long": {
+    "lab_password_long": {
         "en": "OpenWRT password",
         "de": "OpenWRT Passwort"
     },
@@ -54,11 +54,11 @@ systemDictionary = {
         "en": "Check Auth",
         "de": "Auth prüfen"
     },
-    "inp_refresh_short": {
+    "lab_refresh_short": {
         "en": "Refresh interval",
         "de": "Aktualisierungsintervall"
     },
-    "inp_refresh_long": {
+    "lab_refresh_long": {
         "en": "Refresh interval (minutes)",
         "de": "Aktualisierungsintervall (Minuten)"
     }
