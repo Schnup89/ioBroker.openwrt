@@ -52,9 +52,50 @@ If you get something like this, the API is successfully installed:
 Type the URL, Username and Password (same as the SSH/Webinterface) in the admin page and the data will be polled every minute.
 
 If everything works fine, you will see the new Objects:
+
 <img src="github-ressources/example_objects.png" width=300>
 
 
+## Troubleshooting
+If there is something wrong, you can check the Communication at the admin-panel.
+
+First the URL should be "OK", test it with the "Check URL"-Button.
+
+Second the Authentication with user/pass can be tested with the "Check Auth"-Button.
+
+If there are some error's the button will get red, look at the ioBroker-Logs for more informations .
+
+
+## I want more
+
+If you want more Informations create a "Pull Request" or open an Issue with the folowing Template:
+
+```bash
+OpenWrt Version: [18.06] (It will be displayed at the bottom of the Login-Page on Webinterface)
+ubus-Command: [ubus call system info]
+ubss-Command Output: [
+{
+        "localtime": 1587207263,
+        "uptime": 996265,
+        "load": [
+                0,
+                0,
+                0
+        ],
+        "memory": {
+                "total": 127614976,
+                "free": 85233664,
+                "shared": 389120,
+                "buffered": 2379776
+        },
+        "swap": {
+                "total": 0,
+                "free": 0
+        }
+}
+]
+
+```
 
 
 ## Changelog
