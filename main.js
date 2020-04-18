@@ -28,8 +28,8 @@ class Openwrt extends utils.Adapter {
             name: "openwrt",
         });
         this.on("ready", this.onReady.bind(this));
-        this.on("objectChange", this.onObjectChange.bind(this));
-        this.on("stateChange", this.onStateChange.bind(this));
+        //this.on("objectChange", this.onObjectChange.bind(this));
+        //this.on("stateChange", this.onStateChange.bind(this));
         this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
     }
@@ -106,6 +106,10 @@ class Openwrt extends utils.Adapter {
      */
     onUnload(callback) {
         try {
+            if (tmr_GetValues) {
+                clearInterval(tmr_GetValues);
+                tmr_GetValues = null;
+            }
             this.log.info("cleaned everything up...");
             callback();
         } catch (e) {
@@ -114,11 +118,12 @@ class Openwrt extends utils.Adapter {
     }
 
     /**
-     * Is called if a subscribed object changes
-     * @param {string} id
-     * @param {ioBroker.Object | null | undefined} obj
-     
-    onObjectChange(id, obj) {
+    // * Is called if a subscribed object changes
+    // * @param {string} id
+    // * @param {ioBroker.Object | null | undefined} obj
+    */
+
+    /*onObjectChange(id, obj) {
         if (obj) {
             // The object was changed
             this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
@@ -126,14 +131,15 @@ class Openwrt extends utils.Adapter {
             // The object was deleted
             this.log.info(`object ${id} deleted`);
         }
-    }
+    }*/
 
     /**
-     * Is called if a subscribed state changes
-     * @param {string} id
-     * @param {ioBroker.State | null | undefined} state
-   
-    onStateChange(id, state) {
+    //  * Is called if a subscribed state changes
+    // * @param {string} id
+    //* @param {ioBroker.State | null | undefined} state
+    */
+
+    /*onStateChange(id, state) {
         if (state) {
             // The state was changed
             this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
@@ -141,7 +147,7 @@ class Openwrt extends utils.Adapter {
             // The state was deleted
             this.log.info(`state ${id} deleted`);
         }
-    }
+    }*/
 
     // /**
     //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
