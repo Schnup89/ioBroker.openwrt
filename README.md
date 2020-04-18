@@ -22,6 +22,12 @@ The Informations are fetched through the RPC API with the OpenWrt "ubus" system,
 
 If you want specific Informations to be fetched with this adapter, please create a PR or issue, see "I want more"-Section in this README.
 
+### ToDo / Features
+- Initial Testing
+- Filter (on admin panel?) so that not all entrys get fetched
+- Get Settings with [uci get](https://github.com/openwrt/luci/wiki/JsonRpcHowTo#uci)
+- Set Settings with [uci set](https://github.com/openwrt/luci/wiki/JsonRpcHowTo#uci)
+
 
 ## Setup and Check API on Target-Device
 ### Setup
