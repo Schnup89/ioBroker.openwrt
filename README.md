@@ -1,4 +1,5 @@
-<img src="admin/openwrt.png" width="35">
+<img src="admin/openwrt.png" width="64">
+
 # ioBroker.openwrt
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.openwrt.svg)](https://www.npmjs.com/package/iobroker.openwrt)
@@ -12,68 +13,49 @@
 
 **Tests:**: [![Travis-CI](http://img.shields.io/travis/Schnup89/ioBroker.openwrt/master.svg)](https://travis-ci.org/Schnup89/ioBroker.openwrt)
 
-## openwrt adapter for ioBroker
 
-Interact with the openwrt RPC API
+This Adapter interacts with the OpenWrt RPC API of a OpenWrt-Device (Router, Switch, AccessPoint, RaspberryPI, etc.).
 
-## Developer manual
-This section is intended for the developer. It can be deleted later
+At the moment only "read" operations are implemented, so this adapter wont change any system settings on your target device.
+The Informations are fetched through the RPC API with the OpenWrt "ubus" system, <a href="https://openwrt.org/docs/techref/ubus">see here [ubus]</a>
 
-### Getting started
 
-You are almost done, only a few steps left:
-1. Create a new repository on GitHub with the name `ioBroker.openwrt`
+If you want specific Informations to be fetched with this adapter, please create a PR or issue, see "I want more"-Section in this README.
 
-1. Push all files to the GitHub repo. The creator has already set up the local repository for you:  
-    ```bash
-    git push origin master
-    ```
-1. Head over to [main.js](main.js) and start programming!
 
-### Best Practices
-We've collected some [best practices](https://github.com/ioBroker/ioBroker.repositories#development-and-coding-best-practices) regarding ioBroker development and coding in general. If you're new to ioBroker or Node.js, you should
-check them out. If you're already experienced, you should also take a look at them - you might learn something new :)
+## Setup and Check API on Target-Device
+### Setup
+To enable the API, install the following package and restart `uhttpd`:
 
-### Scripts in `package.json`
-Several npm scripts are predefined for your convenience. You can run them using `npm run <scriptname>`
-| Script name | Description                                              |
-|-------------|----------------------------------------------------------|
-| `test:js`   | Executes the tests you defined in `*.test.js` files.     |
-| `test:package`    | Ensures your `package.json` and `io-package.json` are valid. |
-| `test` | Performs a minimal test run on package files and your tests. |
-| `lint` | Runs `ESLint` to check your code for formatting errors and potential bugs. |
+```bash
+opkg install luci-mod-rpc
+/etc/init.d/uhttpd restart
+```
 
-### Writing tests
-When done right, testing code is invaluable, because it gives you the 
-confidence to change your code while knowing exactly if and when 
-something breaks. A good read on the topic of test-driven development 
-is https://hackernoon.com/introduction-to-test-driven-development-tdd-61a13bc92d92. 
-Although writing tests before the code might seem strange at first, but it has very 
-clear upsides.
+Source: [HowTo at the official OpenWrt-Github-Repo](https://github.com/openwrt/luci/wiki/JsonRpcHowTo)
 
-The template provides you with basic tests for the adapter startup and package files.
-It is recommended that you add your own tests into the mix.
+### Check
+To check that the API ist working fine, just navigate to this url with your webbrowser:
+```bash
+http://[TargetDeviceIPorHostname]/cgi-bin/luci/rpc/auth
+```
 
-### Publishing the adapter
-To get your adapter released in ioBroker, please refer to the documentation 
-of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#requirements-for-adapter-to-get-added-to-the-latest-repository).
+If you get something like this, the API is successfully installed:
 
-### Test the adapter manually on a local ioBroker installation
-In order to install the adapter locally without publishing, the following steps are recommended:
-1. Create a tarball from your dev directory:  
-    ```bash
-    npm pack
-    ```
-1. Upload the resulting file to your ioBroker host
-1. Install it locally (The paths are different on Windows):
-    ```bash
-    cd /opt/iobroker
-    npm i /path/to/tarball.tgz
-    ```
+```bash
+{"id":null,"error":{"message":"Parse error.","code":-32700},"jsonrpc":"2.0"}
+```
+> Side-Note: The URL-Check on the "admin"-Page checks for "jsonrpc" text in response
 
-For later updates, the above procedure is not necessary. Just do the following:
-1. Overwrite the changed files in the adapter directory (`/opt/iobroker/node_modules/iobroker.openwrt`)
-1. Execute `iobroker upload openwrt` on the ioBroker host
+
+## Usage
+Type the URL, Username and Password (same as the SSH/Webinterface) in the admin page and the data will be polled every minute.
+
+If everything works fine, you will see the new Objects:
+<img src="github-ressources/example_objects.png" width=300>
+
+
+
 
 ## Changelog
 
