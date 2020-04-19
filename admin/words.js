@@ -61,5 +61,41 @@ systemDictionary = {
     "lab_refresh_long": {
         "en": "Refresh interval (minutes)",
         "de": "Aktualisierungsintervall (Minuten)"
+    },
+    "lab_settings": {
+        "en": "Datatransfer - Commands&DataTypes",
+        "de": "Datenabruf - Kommandos&Datentypen"
+    },
+    "text_settings": {
+        "en": "You probably just need the left table with the Command-List<br>The table on the right should be used if a DataType is determined wrong for a created ioBroker-States [under Tab Objects] (type: Text, Boolean or Number)",
+        "de": "Du wirst in der Regel nur die linke Tabelle mit den Kommandos benötigen.<br>Die rechts Tabelle die nur zum korrieren der automatisch erkannten DatenTypen für ioBroker-States [im Objects-Tab] (Type: Text, Boolean oder Number)"
+    },
+    "lab_BtnAddCMD": {
+        "en": "Add ubus Command",
+        "de": "ubus Kommando hinzufügen"
+    },
+    "list_commands-cmd": {
+        "en": "ubus Command",
+        "de": "ubus Kommando"
+    },
+    "list_commands-del": {
+        "en": "Delete",
+        "de": "Löschen"
+    },
+    "lab_BtnAddType": {
+        "en": "Add type definition",
+        "de": "Datentyp hinzufügen"
+    },
+    "list_types-stateid": {
+        "en": "State ID (see Objects)",
+        "de": "State ID (unter Objects)"
+    },
+    "list_types-type": {
+        "en": "Datatype",
+        "de": "Datentyp (soll)"
+    },
+    "list_types-del": {
+        "en": "Delete",
+        "de": "Löschen"
     }
 };

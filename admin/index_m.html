@@ -36,6 +36,9 @@
             return result;
         }
 
+        var getCommandList = [];
+        var getTypeList = [];
+
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
             $('#fTestURL').on('click', (function () {
@@ -104,7 +107,12 @@
                             ;
                     }
                 });
+
+                getCommandList = settings.list_commands || [];
+                getTypeList = settings.list_types || [];
                 onChange(false);
+                values2table("list_commands", getCommandList, onChange);
+                values2table("list_types", getTypeList, onChange);
                 // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
                 if (M) M.updateTextFields();
 
@@ -133,10 +141,22 @@
                         break;
                 }
             });
+            obj.list_commands = table2values("list_commands");
+            obj.list_types = table2values("list_types");
             callback(obj);
         }
     </script>
 
+    <style>
+        /* Title of each section */
+        .title { font-weight: bold; }
+        /* Info text of each section */
+        .info { margin-left: 1em; }
+        /* Table header */
+        .table-values th { height: 2em; background-color:#2196F3; font-size:90%; }
+        /* Table: Add button */
+        .table-button-add { margin: 0.3em 0 1em 0; }
+    </style>
 </head>
 
 <body>
@@ -190,8 +210,45 @@
             </div>
         </div>
 
+
+        <div class="row">
+            <div id="tab-list_commands" class="col s12 page">
+                <p class="translate title">lab_settings</p>
+                <p class="translate info">text_settings</p>
+                <div class="col s12 m6 l4" id="list_commands">
+                    <a class="btn-floating waves-effect waves-light blue table-button-add"><i class="material-icons">add</i></a>
+                    <span class="translate info" style="margin-right: 50px;">lab_BtnAddCMD</span>
+
+                    <div class="table-values-div">
+                        <table class="table-values">
+                            <thead>
+                                <tr>
+                                    <th class="header translate" data-name="cmd">list_commands-cmd</th>
+                                    <th class="header translate" data-buttons="delete">list_commands-del</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="col s12 m6 l4" id="list_types">
+                    <a class="btn-floating waves-effect waves-light blue table-button-add"><i class="material-icons">add</i></a>
+                    <span class="translate info" style="margin-right: 50px;">lab_BtnAddType</span>
+
+                    <div class="table-values-div">
+                        <table class="table-values">
+                            <thead>
+                                <tr>
+                                    <th class="header translate" data-name="stateid">list_types-stateid</th>
+                                    <th class="header translate" style="width: 150px" data-name="type" data-options="Text;Number;Boolean" data-type="select" style="width: 150px">list_types-type</th>
+                                    <th class="header translate" data-buttons="delete">list_types-del</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>
-
 </html>

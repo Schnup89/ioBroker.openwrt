@@ -79,7 +79,13 @@
         "inp_url": "http://openwrt/cgi-bin/luci/rpc/",
         "inp_username": "admin",
         "inp_password": "",
-        "inp_refresh": 1
+        "inp_refresh": 1,
+        "list_commands": [ 
+            {
+                "cmd": "ubus call network.interface.wan status"
+            } 
+        ],
+        "list_types": []
     },
     "objects": [],
     "instanceObjects": [
