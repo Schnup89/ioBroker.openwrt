@@ -366,7 +366,7 @@ class Openwrt extends utils.Adapter {
                     this.setState("sendCommandLastResult",response.stringify());
                 }
             }
-        }
+        });
     }
 
 
