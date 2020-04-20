@@ -97,15 +97,23 @@ class Openwrt extends utils.Adapter {
             this.log.info("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
         }
         
+        //Object2SendCMD
         this.setObjectNotExists("sendCommand", {
             type: "state",
             common: { name: "sendCommand", type: "text", role: "text", write: true},
             native: {}  
         });
         this.setState("sendCommand", "");
-
+        
+        //Object2WriteResult
+        this.setObjectNotExists("sendCommandLastResult", {
+            type: "state",
+            common: { name: "sendCommand", type: "text", role: "text", write: false},
+            native: {}  
+        });
+        this.setState("sendCommandLastResult", "");
+        
         this.subscribeStates("*");
-
     }
 
     /**
@@ -150,9 +158,9 @@ class Openwrt extends utils.Adapter {
     onStateChange(id, state) {
         if (state) {
             // The state was changed
-            this.log.info("id: " + id + " val: " + state.val);
-            if (id == "sendCommand" && state.val) { //& value not "" empty 
+            if (id == this.namespace + ".sendCommand" && state.val) { //& value not "" empty 
                 this.log.info("SendCommand: " + state.val);
+                this.fHTTPSendCommand(state.val, true);
             }
         } else {
             // The state was deleted
@@ -265,16 +273,16 @@ class Openwrt extends utils.Adapter {
                 return false;  //Error
             } 
         }
-
         return true;  //NO Error
     }
+    
 
     fHTTPGetToken() {  //NOT ASYNC 
         return new Promise((resolve) => {
             const oReqBody = {
                 "id": 1,
                 "method": "login",
-                "params": ["root",sPass]
+                "params": [this.config.inp_username,sPass]
             };
             const oReqOpt = {
                 "method": "GET",
@@ -324,6 +332,35 @@ class Openwrt extends utils.Adapter {
         const sRole = "";
         //ToDo, check if Override exists, change const to let and overrite it!
         return { name: "", type: sType, role: sRole, read: true, write: false };
+    }
+    
+    fHTTPSendCommand(sCMD, bFirstTry) {
+        const oReqBody = {
+            "method": "exec",
+            "params": [ sCMD ]
+        };
+        const oReqOpt = {
+            "method": "POST",
+            "url": this.config.inp_url + "sys?auth="+this.config.sToken,
+            "headers": {
+                "Content-Type": ["application/json", "text/plain"]
+            },
+            "body": JSON.stringify(oReqBody)            
+        };
+
+        request(oReqOpt, async (error, response, body) => {
+            if (await this.fValidateHTTPResult(error,response,"SendCommand, " + sCMD)) {
+                try {
+                    //bug... output \n\t\ seems broken, delete it
+                    body = this.replaceAll(body,"\n\t","");
+                    this.setState("sendCommandLastResult",body.stringify());
+                } catch (e) {
+                    this.log.info("##### SendCommand, " + sCMD + " + CatchError: " + e);
+                }
+            } else {
+                this.fHTTPSendCommand(sCMD, false); //If Token was not valid, this ensures it gets renew while fvalidehttpresult
+            }
+        }
     }
 
 
