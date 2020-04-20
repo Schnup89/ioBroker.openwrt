@@ -318,7 +318,7 @@ class Openwrt extends utils.Adapter {
         let oCommon = this.fOverrideExists(oKey);
         oCommon.name = oKey;
         
-        this.log.info(oKey + ": " + type.get(oValue));
+        //this.log.info(oKey + ": " + type.get(oValue));
         if (oCommon.type == "") { //NOT Overwritten
             switch(type.get(oValue)) {
                 case "string":
