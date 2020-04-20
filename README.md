@@ -59,11 +59,13 @@ If you get something like this, the API is successfully installed:
 
 
 ## Usage
-Type the URL, Username and Password (same as the SSH/Webinterface) in the admin page and the data will be polled every minute.
+- Type the URL, Username and Password (same as the SSH/Webinterface) in the admin page
 
-If everything works fine, you will see the new Objects:
+- If everything works fine, you will see the new Objects:
 
 <img src="github-ressources/example_objects.png" width=300>
+
+- Get more Data with specific ubus call-commands, [check this out](https://github.com/Schnup89/ioBroker.openwrt/wiki/ubus-commands)
 
 
 ## Troubleshooting
