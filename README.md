@@ -16,16 +16,20 @@
 
 This Adapter interacts with the OpenWrt RPC API of a OpenWrt-Device (Router, Switch, AccessPoint, RaspberryPI, etc.).
 
-At the moment only "read" operations are implemented, so this adapter wont change any system settings on your target device.
-The Informations are fetched through the RPC API with the OpenWrt "ubus" system, <a href="https://openwrt.org/docs/techref/ubus">see here [ubus]</a>
+Reading data from ubus to ioBroker-Objects:
+
+At the moment only the "ubus call" results are fetched, with that you should get the most data out of the router. 
+The json-results are parsed and written to the objects database, <a href="https://openwrt.org/docs/techref/ubus">see here [ubus]</a>
+
+Setting data with ubus from ioBroker to OpenWrt:
+
+... ToDo!
 
 
-If you want specific Informations to be fetched with this adapter, please create a PR or issue, see "I want more"-Section in this README.
 
 ### ToDo / new Features
 - Initial Testing
-- Filter (on admin panel?) so that not all entrys get fetched
-- Get Settings with [uci get](https://github.com/openwrt/luci/wiki/JsonRpcHowTo#uci)
+- Interface Handling
 - Set Settings with [uci set](https://github.com/openwrt/luci/wiki/JsonRpcHowTo#uci)
 
 
@@ -63,7 +67,7 @@ If everything works fine, you will see the new Objects:
 
 
 ## Troubleshooting
-If there is something wrong, you can check the Communication at the admin-panel.
+If there is something wrong, you can check the communication at the admin-panel.
 
 First the URL should be "OK", test it with the "Check URL"-Button.
 
@@ -71,37 +75,6 @@ Second the Authentication with user/pass can be tested with the "Check Auth"-But
 
 If there are some error's the button will get red, look at the ioBroker-Logs for more informations .
 
-
-## I want more
-
-If you want more Informations create a "Pull Request" or open an Issue with the folowing Template:
-
-```bash
-OpenWrt Version: [18.06] (It will be displayed at the bottom of the Login-Page on Webinterface)
-ubus-Command: [ubus call system info]
-ubus-Command Output: [
-{
-        "localtime": 1587207263,
-        "uptime": 996265,
-        "load": [
-                0,
-                0,
-                0
-        ],
-        "memory": {
-                "total": 127614976,
-                "free": 85233664,
-                "shared": 389120,
-                "buffered": 2379776
-        },
-        "swap": {
-                "total": 0,
-                "free": 0
-        }
-}
-]
-
-```
 
 
 ## Changelog
