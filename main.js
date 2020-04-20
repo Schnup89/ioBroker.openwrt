@@ -161,6 +161,7 @@ class Openwrt extends utils.Adapter {
             if (id == this.namespace + ".sendCommand" && state.val) { //& value not "" empty 
                 this.log.info("SendCommand: " + state.val);
                 this.fHTTPSendCommand(state.val, true);
+                this.setState("sendCommand", "");
             }
         } else {
             // The state was deleted
@@ -356,9 +357,14 @@ class Openwrt extends utils.Adapter {
                     this.setState("sendCommandLastResult",body.stringify());
                 } catch (e) {
                     this.log.info("##### SendCommand, " + sCMD + " + CatchError: " + e);
+                    this.setState("sendCommandLastResult","{ \"error\": \"" + e + "\" }");
                 }
             } else {
-                this.fHTTPSendCommand(sCMD, false); //If Token was not valid, this ensures it gets renew while fvalidehttpresult
+                if (bFirstTry) {
+                    this.fHTTPSendCommand(sCMD, false); //If Token was not valid, this ensures it gets renew while fvalidehttpresult
+                } else {
+                    this.setState("sendCommandLastResult",response.stringify());
+                }
             }
         }
     }
