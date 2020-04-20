@@ -355,7 +355,8 @@ class Openwrt extends utils.Adapter {
                     //bug... output \n\t\ seems broken, delete it
                     body = this.replaceAll(body,"\n\t","");
                     const oBody = JSON.parse(body);
-                    this.setState("sendCommandLastResult",JSON.stringify(oBody));
+                    let sBody = JSON.stringify(oBody); 
+                    this.setState("sendCommandLastResult",this.replaceAll(sBody,"\n\t",""));
                 } catch (e) {
                     this.log.info("##### SendCommand, " + sCMD + " + CatchError: " + e);
                     this.setState("sendCommandLastResult","{ \"error\": \"" + e + "\" }");
