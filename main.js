@@ -150,8 +150,8 @@ class Openwrt extends utils.Adapter {
     onStateChange(id, state) {
         if (state) {
             // The state was changed
-            this.log.info("id: " + state.id + " val: " + state.val);
-            if (state.id == "sendCommand" && state.val) { //& value not "" empty 
+            this.log.info("id: " + id + " val: " + state.val);
+            if (id == "sendCommand" && state.val) { //& value not "" empty 
                 this.log.info("SendCommand: " + state.val);
             }
         } else {
