@@ -77,7 +77,7 @@
     "native": {
         "sToken": "",
         "inp_url": "http://openwrt/cgi-bin/luci/rpc/",
-        "inp_username": "admin",
+        "inp_username": "root",
         "inp_password": "",
         "inp_refresh": 1,
         "list_commands": [ 
