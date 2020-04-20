@@ -354,7 +354,7 @@ class Openwrt extends utils.Adapter {
                 try {
                     //bug... output \n\t\ seems broken, delete it
                     body = this.replaceAll(body,"\n\t","");
-                    this.setState("sendCommandLastResult",body.stringify());
+                    this.setState("sendCommandLastResult",JSON.stringify(body));
                 } catch (e) {
                     this.log.info("##### SendCommand, " + sCMD + " + CatchError: " + e);
                     this.setState("sendCommandLastResult","{ \"error\": \"" + e + "\" }");
@@ -363,7 +363,7 @@ class Openwrt extends utils.Adapter {
                 if (bFirstTry) {
                     this.fHTTPSendCommand(sCMD, false); //If Token was not valid, this ensures it gets renew while fvalidehttpresult
                 } else {
-                    this.setState("sendCommandLastResult",response.stringify());
+                    this.setState("sendCommandLastResult",JSON.stringify(response));
                 }
             }
         });
