@@ -30,7 +30,7 @@ class Openwrt extends utils.Adapter {
         });
         this.on("ready", this.onReady.bind(this));
         //this.on("objectChange", this.onObjectChange.bind(this));
-        //this.on("stateChange", this.onStateChange.bind(this));
+        this.on("stateChange", this.onStateChange.bind(this));
         this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
     }
@@ -93,11 +93,18 @@ class Openwrt extends utils.Adapter {
             await this.fHTTPGetToken();
             //Then begin Update Timer
             this.fHTTPGetValues();
-        }else{
+        } else {
             this.log.info("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
         }
+        
+        this.setObjectNotExists("sendCommand", {
+            type: "state",
+            common: { name: "sendCommand", type: "text", role: "text", write: true},
+            native: {}  
+        });
+        this.setState("sendCommand", "");
 
-        //this.subscribeStates("*");
+        this.subscribeStates("*");
 
     }
 
@@ -140,15 +147,17 @@ class Openwrt extends utils.Adapter {
     //* @param {ioBroker.State | null | undefined} state
     */
 
-    /*onStateChange(id, state) {
+    onStateChange(id, state) {
         if (state) {
             // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+            if (state.id == "sendCommand" && state.val) { //& value not "" empty 
+                this.log.info("SendCommand: " + state.val);
+            }
         } else {
             // The state was deleted
             this.log.info(`state ${id} deleted`);
         }
-    }*/
+    }
 
     // /**
     //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
@@ -281,12 +290,18 @@ class Openwrt extends utils.Adapter {
                         if (!oBody.error && oBody.result) {
                             this.log.info("Saved new Token: " + oBody.result);
                             this.config.sToken =  oBody.result;
+                            this.setState("info.connection",true,true);
                         }else{
                             this.log.info("##### fHTTPGetToken ResultError: " + body);
+                            this.setState("info.connection",false,true);
                         }
                     } catch (e) {
                         this.log.info("##### fHTTPGetToken CatchError: " + e);
+                        this.setState("info.connection",false,true);
                     }
+                } else { 
+                    //Error Message is printed in validate function
+                    this.setState("info.connection",false,true);
                 }
                 resolve(true);
             });
