@@ -16,21 +16,19 @@
 
 This Adapter interacts with the OpenWrt RPC API of a OpenWrt-Device (Router, Switch, AccessPoint, RaspberryPI, etc.).
 
-Reading data from ubus to ioBroker-Objects:
-
-At the moment only the "ubus call" results are fetched, with that you should get the most data out of the router. 
+**Reading data from ubus to ioBroker-Objects:** 
+At the moment only the "ubus call" results are fetched. With that commands you should get the most data out of the router. 
 The json-results are parsed and written to the objects database, <a href="https://openwrt.org/docs/techref/ubus">see here [ubus]</a>
 
-Setting data with ubus from ioBroker to OpenWrt:
-
-... ToDo!
+**Setting data with ubus from ioBroker to OpenWrt:**
+You can send Commands to the router over the API with the State-Object "sendCommand".  
+Put in the command you want to send to the router, the result will be written as JSON-Object to the "sendCommandLastResult" Object and the "sendCommand"-Object will be cleared.
 
 
 
 ### ToDo / new Features
 - Initial Testing
-- Interface Handling
-- Set Settings with [uci set](https://github.com/openwrt/luci/wiki/JsonRpcHowTo#uci)
+- Interface Handling (get Informations automaticly)
 
 
 ## Setup and Check API on Target-Device
