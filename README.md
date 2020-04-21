@@ -27,8 +27,9 @@ Put in the command you want to send to the router, the result will be written as
 
 
 ### ToDo / new Features
-- Initial Testing
-- Interface Handling (get Informations automaticly)
+- ToDo: Initial Testing
+- ToDo: Dynamic Objects, see https://forum.iobroker.net/topic/32465/dynamischer-objektbaum (german)
+- Feature: Interface Handling (get Informations automaticly)
 
 
 ## Setup and Check API on Target-Device
