@@ -57,7 +57,7 @@ class Openwrt extends utils.Adapter {
         // Reset the connection indicator during startup
         this.setState("info.connection", false, true);
 
-        this.log.info("##### LOAD CONFIG #####");
+        this.log.debug("##### LOAD CONFIG #####");
         
         //Check refresh interval field, if its's not set, we set it
         if (!Number.isInteger(this.config.inp_refresh)) {
@@ -84,34 +84,32 @@ class Openwrt extends utils.Adapter {
         } else {
             sPass = this.decrypt("Zgfr56gFe87jJOM", this.config.inp_password);
         }
-        this.log.info("Decrypted the encrypted password!");
+        this.log.debug("Decrypted the encrypted password!");
 
         
-        this.log.info("##### RUN ADAPTER ##### ");
+        this.log.debug("##### RUN ADAPTER ##### ");
         if (!bPreCheckErr) {
             //Get first Time Token
             await this.fHTTPGetToken();
             //Then begin Update Timer
             this.fHTTPGetValues();
         } else {
-            this.log.info("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
+            this.log.error("##### PRE CHECK ERRORS, MAIN FUNCTIONS DISABLED! Check Settings");
         }
         
         //Object2SendCMD
         this.setObjectNotExists("sendCommand", {
             type: "state",
-            common: { name: "sendCommand", type: "text", role: "text", write: true},
+            common: { name: "sendCommand", type: "string", role: "text", write: true},
             native: {}  
-        });
-        this.setState("sendCommand", "");
+        }, (id, error) => {this.setState("sendCommand", "", true);});
         
         //Object2WriteResult
         this.setObjectNotExists("sendCommandLastResult", {
             type: "state",
-            common: { name: "sendCommand", type: "text", role: "text", write: false},
+            common: { name: "sendCommand", type: "string", role: "text", write: false},
             native: {}  
-        });
-        this.setState("sendCommandLastResult", "");
+        }, (id, error) => {this.setState("sendCommandLastResult", "", true);});
         
         this.subscribeStates("*");
     }
@@ -159,13 +157,13 @@ class Openwrt extends utils.Adapter {
         if (state) {
             // The state was changed
             if (id == this.namespace + ".sendCommand" && state.val) { //& value not "" empty 
-                this.log.info("SendCommand: " + state.val);
+                this.log.debug("SendCommand: " + state.val);
                 this.fHTTPSendCommand(state.val, true);
                 this.setState("sendCommand", "");
             }
         } else {
             // The state was deleted
-            this.log.info(`state ${id} deleted`);
+            this.log.debug(`state ${id} deleted`);
         }
     }
 
@@ -201,7 +199,7 @@ class Openwrt extends utils.Adapter {
                 "url": oCheckVals.sURL + "auth"         
             };  
 
-            this.log.info("Called fHTTPCheckURL");
+            this.log.debug("Called fHTTPCheckURL");
             request(oReqOpt, (error, response, body) => {
                 try {
                     if (error) {
@@ -212,12 +210,12 @@ class Openwrt extends utils.Adapter {
                             this.log.warn("fHTTPCheckURL 'jsonrpc' not found in response.");
                             resolve(false);
                         } else {
-                            this.log.info("fHTTPCheckURL success");
+                            this.log.debug("fHTTPCheckURL success");
                             resolve(true);
                         }
                     }
                 } catch (e) {
-                    this.log.info("##### fHTTPCheckURL CatchError: " + e);
+                    this.log.error("##### fHTTPCheckURL CatchError: " + e);
                 }
             });
         });
@@ -236,16 +234,16 @@ class Openwrt extends utils.Adapter {
                 "headers": { "Content-Type": ["application/json", "text/plain"] },
                 "body": JSON.stringify(oReqBody)            
             };   
-            this.log.info("Called fHTTPCheckAuth");
+            this.log.debug("Called fHTTPCheckAuth");
             request(oReqOpt, (error, response, body) => {
                 try {
                     if (this.fValidateHTTPResult(error,response,"CheckAuth")) {
                         const oBody = JSON.parse(body);
                         if (!oBody.error && oBody.result) {
-                            this.log.info("fHTTPCheckAuth success");
+                            this.log.debug("fHTTPCheckAuth success");
                             resolve(true);
                         }else{
-                            this.log.info("fHTTPCheckAuth ResultError: " + body);
+                            this.log.error("fHTTPCheckAuth ResultError: " + body);
                             resolve(false);
                         }
                     } else {
@@ -254,7 +252,7 @@ class Openwrt extends utils.Adapter {
                     }
                     resolve(true);
                 } catch (e) {
-                    this.log.info("##### fHTTPCheckAuth CatchError: " + e);
+                    this.log.error("##### fHTTPCheckAuth CatchError: " + e);
                 }
             });
         });
@@ -267,7 +265,7 @@ class Openwrt extends utils.Adapter {
             return false;  //Error
         } else {
             if (!(response.statusCode == 200)) {
-                this.log.info("##### fHTTP" + sFuncName + " HTTPCode: " + response.statusCode);
+                this.log.debug("##### fHTTP" + sFuncName + " HTTPCode: " + response.statusCode);
                 if (response.statusCode == 403) {
                     await this.fHTTPGetToken();
                 }
@@ -292,21 +290,21 @@ class Openwrt extends utils.Adapter {
                 "body": JSON.stringify(oReqBody)            
             };  
 
-            this.log.info("Called fHTTGetToken");
+            this.log.debug("Called fHTTGetToken");
             request(oReqOpt, (error, response, body) => {
                 if (this.fValidateHTTPResult(error,response,"GetToken")) {
                     try {
                         const oBody = JSON.parse(body);
                         if (!oBody.error && oBody.result) {
-                            this.log.info("Saved new Token: " + oBody.result);
+                            this.log.debug("Saved new Token: " + oBody.result);
                             this.config.sToken =  oBody.result;
                             this.setState("info.connection",true,true);
                         }else{
-                            this.log.info("##### fHTTPGetToken ResultError: " + body);
+                            this.log.debug("##### fHTTPGetToken ResultError: " + body);
                             this.setState("info.connection",false,true);
                         }
                     } catch (e) {
-                        this.log.info("##### fHTTPGetToken CatchError: " + e);
+                        this.log.debug("##### fHTTPGetToken CatchError: " + e);
                         this.setState("info.connection",false,true);
                     }
                 } else { 
@@ -360,7 +358,7 @@ class Openwrt extends utils.Adapter {
                     sBody = sBody.replace(/\\r/g,"");
                     this.setState("sendCommandLastResult",sBody);
                 } catch (e) {
-                    this.log.info("##### SendCommand, " + sCMD + " + CatchError: " + e);
+                    this.log.error("##### SendCommand, " + sCMD + " + CatchError: " + e);
                     this.setState("sendCommandLastResult","{ \"error\": \"" + e + "\" }");
                 }
             } else {
@@ -385,8 +383,8 @@ class Openwrt extends utils.Adapter {
         if (oCommon.type == "") { //NOT Overwritten
             switch(type.get(oValue)) {
                 case "string":
-                    oCommon.type = "text"; 
-                    oCommon.role =  "text";
+                    oCommon.type = "string"; 
+                    oCommon.role =  "string";
                     oCommon.write = false;
                     break;
                 case "number":
@@ -410,6 +408,7 @@ class Openwrt extends utils.Adapter {
                     return; //No need to set this Parent Object
                 case "object":
                     if (Object.entries(oTree[oKey]).length) {
+                        this.fSetValue2State(this.formatDate(new Date(), "TT.MM.JJJJ hh:mm:ss"),"lastUpdate",sFolder+"."+oKey,oTree[oKey]);
                         for (const [key, value] of Object.entries(oTree[oKey])) {
                             oValue = oValue + ", "+ value;
                             this.fSetValue2State(value,key,sFolder+"."+oKey,oTree[oKey]);
@@ -426,8 +425,8 @@ class Openwrt extends utils.Adapter {
             type: "state",
             common: oCommon,
             native: {}  
-        });
-        this.setState(sFolder + "." + oCommon.name, oValue);
+        }, (id, error) => {this.setState(sFolder + "." + oCommon.name, oValue, true);}
+        );
     }
 
 
@@ -461,7 +460,7 @@ class Openwrt extends utils.Adapter {
                         }                          
                     }
                 } catch (e) {
-                    this.log.info("##### GetUbusCMD, " + sCMD + " + CatchError: " + e);
+                    this.log.error("##### GetUbusCMD, " + sCMD + " + CatchError: " + e);
                 }
             }
         });
