@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "openwrt",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "news": {
             "0.0.1": {
                 "en": "initial release",
@@ -14,6 +14,18 @@
                 "es": "Versión inicial",
                 "pl": "Pierwsze wydanie",
                 "zh-cn": "首次出版"
+            },
+             "0.0.2": {
+                "en": "Added Last-Update key to states",
+                "de": "Letzter Update-Schlüssel zu Staaten hinzugefügt",
+                "ru": "Добавлен ключ последнего обновления к состояниям",
+                "pt": "Adicionada a chave da última atualização aos estados",
+                "nl": "Last-Update-sleutel toegevoegd aan staten",
+                "fr": "Ajout de la clé de dernière mise à jour aux états",
+                "it": "Aggiunto tasto Ultimo aggiornamento agli stati",
+                "es": "Se agregó la clave de última actualización a los estados",
+                "pl": "Dodano klucz ostatniej aktualizacji do stanów",
+                "zh-cn": "为状态添加了 Last-Update 键"
             }
         },
         "title": "OpenWRT",
