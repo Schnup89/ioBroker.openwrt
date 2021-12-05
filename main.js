@@ -332,7 +332,6 @@ class Openwrt extends utils.Adapter {
         tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 60000);
 
         for (let nEntry = 0; nEntry < this.config.list_commands.length; nEntry++) {
-            this.log.info(this.config.list_commands[nEntry].alias)
             this.fHTTPGetUbusCMD(this.config.list_commands[nEntry].cmd,this.config.list_commands[nEntry].alias);
         }
     }
