@@ -74,6 +74,10 @@ systemDictionary = {
         "en": "Add ubus Command",
         "de": "ubus Kommando hinzufügen"
     },
+    "list_commands-alias": {
+        "en": "Alias",
+        "de": "Alias"
+    },
     "list_commands-cmd": {
         "en": "ubus Command",
         "de": "ubus Kommando"
