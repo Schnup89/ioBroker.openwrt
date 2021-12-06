@@ -494,17 +494,17 @@ class Openwrt extends utils.Adapter {
                     const oBody = JSON.parse(body);
                     if (!oBody.error && oBody.result) {
                         const oTree = JSON.parse(oBody.result);
-                        for (const [key, value] of Object.entries(oTree)) { 
-                            let sFolder = this.replaceAll(sAlias," ","_");     //Format CMD  to be OK as ObjectName
-                            sFolder = this.replaceAll(sFolder ,/\./,"-");  //Format CMD to be OK as ObjectName
-                            this.getChannelsOf(sFolder.split(".")[0],(err,channels) => {
-                                const channelnames = channels.map(channel => {return channel._id})
+                        let sFolder = this.replaceAll(sAlias," ","_");     //Format CMD  to be OK as ObjectName
+                        sFolder = this.replaceAll(sFolder ,/\./,"-");  //Format CMD to be OK as ObjectName
+                        this.getChannelsOf(sFolder.split(".")[0],(err,channels) => {
+                            const channelnames = channels.map(channel => {return channel._id})
+                            for (const [key, value] of Object.entries(oTree)) { 
                                 this.fSetValue2State(value,key,sFolder, oTree, channelnames);
-                                channelnames.forEach(channel => {
-                                    this.fSetValue2State(false,"isAvailable",channel,oTree, channelnames);                              
-                                    })
-                            });
-                        }                          
+                            }
+                            channelnames.forEach(channel => {
+                                this.fSetValue2State(false,"isAvailable",channel,oTree, channelnames);                              
+                            })   
+                        });                       
                     }
                 } catch (e) {
                     this.log.error("##### GetUbusCMD, " + sCMD + " + CatchError: " + e);
