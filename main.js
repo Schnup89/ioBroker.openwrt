@@ -121,7 +121,24 @@ class Openwrt extends utils.Adapter {
             common: { name: "sendCommand", type: "string", role: "text", write: false},
             native: {}  
         }, (id, error) => {this.setState("sendCommandLastResult", "", true);});
-        
+
+        this.getDevices((err,devices) => {
+            const device_list = this.config.list_commands.map(entry => {return entry.alias});
+            device_list.forEach(device => {
+                this.setObjectNotExists(device, {
+                    type: "device",
+                    common: { name: device},
+                    native: {}                  
+                });                
+            });
+            devices.forEach(device => {
+                const device_name = device._id.replace(this.namespace+".","");
+                if (!device_list.includes(device_name)) {
+                    this.delObject(device_name, {recursive: true})
+                }
+            })
+        });
+                       
         this.subscribeStates("*");
     }
 
