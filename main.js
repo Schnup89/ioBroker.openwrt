@@ -17,6 +17,17 @@ let sPass = "";
 // Load your modules here, e.g.:
 // const fs = require("fs");
 
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
 class Openwrt extends utils.Adapter {
 
     /**
@@ -110,7 +121,24 @@ class Openwrt extends utils.Adapter {
             common: { name: "sendCommand", type: "string", role: "text", write: false},
             native: {}  
         }, (id, error) => {this.setState("sendCommandLastResult", "", true);});
-        
+
+        this.getDevices((err,devices) => {
+            const device_list = this.config.list_commands.map(entry => {return entry.alias});
+            device_list.forEach(device => {
+                this.setObjectNotExists(device, {
+                    type: "device",
+                    common: { name: device},
+                    native: {}                  
+                });                
+            });
+            devices.forEach(device => {
+                const device_name = device._id.replace(this.namespace+".","");
+                if (!device_list.includes(device_name)) {
+                    this.delObject(device_name, {recursive: true})
+                }
+            })
+        });
+                       
         this.subscribeStates("*");
     }
 
@@ -321,7 +349,7 @@ class Openwrt extends utils.Adapter {
         tmr_GetValues = setTimeout(() =>this.fHTTPGetValues(),this.config.inp_refresh * 60000);
 
         for (let nEntry = 0; nEntry < this.config.list_commands.length; nEntry++) {
-            this.fHTTPGetUbusCMD(this.config.list_commands[nEntry].cmd);
+            this.fHTTPGetUbusCMD(this.config.list_commands[nEntry].cmd,this.config.list_commands[nEntry].alias);
         }
     }
 
@@ -374,7 +402,7 @@ class Openwrt extends utils.Adapter {
 
     //##################### DATA FUNCTION
 
-    fSetValue2State(oValue, oKey, sFolder, oTree){
+    fSetValue2State(oValue, oKey, sFolder, oTree, channelnames){
         // eslint-disable-next-line prefer-const
         let oCommon = this.fOverrideExists(oKey);
         oCommon.name = oKey;
@@ -398,20 +426,35 @@ class Openwrt extends utils.Adapter {
                     oCommon.write = false;
                     break;
                 case "array":
-                    if (Object.entries(oTree[oKey]).length) {    
+                    if (Object.entries(oTree[oKey]).length) {  
+                        this.setObjectNotExists(sFolder + "." + oKey, {
+                            type: "channel",
+                            native: {}    
+                        });
+                        channelnames.remove(this.namespace + "." + sFolder + "." + oKey);
+                        this.fSetValue2State(true,"isAvailable",sFolder+"."+oKey,oTree[oKey], channelnames);
+                        this.fSetValue2State(this.formatDate(new Date(), "TT.MM.JJJJ hh:mm:ss"),"lastUpdate",sFolder+"."+oKey,oTree[oKey], channelnames);
+  
                         for (const [key, value] of Object.entries(oTree[oKey])) {
                             oValue = oValue + ", "+ value;
-                            this.fSetValue2State(value,key,sFolder+"."+oKey,oTree[oKey]);
+                            this.fSetValue2State(value,key,sFolder+"."+oKey,oTree[oKey], channelnames);
                         }      
                         oValue.slice(-1);
                     }
                     return; //No need to set this Parent Object
                 case "object":
                     if (Object.entries(oTree[oKey]).length) {
-                        this.fSetValue2State(this.formatDate(new Date(), "TT.MM.JJJJ hh:mm:ss"),"lastUpdate",sFolder+"."+oKey,oTree[oKey]);
+                        this.setObjectNotExists(sFolder + "." + oKey, {
+                            type: "channel",
+                            native: {}    
+                        });
+                        channelnames.remove(this.namespace + "." + sFolder + "." + oKey);
+                        this.fSetValue2State(true,"isAvailable",sFolder+"."+oKey,oTree[oKey], channelnames);
+                        this.fSetValue2State(this.formatDate(new Date(), "TT.MM.JJJJ hh:mm:ss"),"lastUpdate",sFolder+"."+oKey,oTree[oKey], channelnames);
+                        
                         for (const [key, value] of Object.entries(oTree[oKey])) {
                             oValue = oValue + ", "+ value;
-                            this.fSetValue2State(value,key,sFolder+"."+oKey,oTree[oKey]);
+                            this.fSetValue2State(value,key,sFolder+"."+oKey,oTree[oKey], channelnames);
                         }   
                         oValue.slice(-1); 
                     }  
@@ -428,10 +471,8 @@ class Openwrt extends utils.Adapter {
         }, (id, error) => {this.setState(sFolder + "." + oCommon.name, oValue, true);}
         );
     }
-
-
-
-    fHTTPGetUbusCMD(sCMD) {  //ubus Communication
+    
+    fHTTPGetUbusCMD(sCMD,sAlias) {  //ubus Communication
         const oReqBody = {
             "method": "exec",
             "params": [ sCMD ]
@@ -453,11 +494,17 @@ class Openwrt extends utils.Adapter {
                     const oBody = JSON.parse(body);
                     if (!oBody.error && oBody.result) {
                         const oTree = JSON.parse(oBody.result);
-                        for (const [key, value] of Object.entries(oTree)) { 
-                            let sFolder = this.replaceAll(sCMD," ","_");     //Format CMD  to be OK as ObjectName
-                            sFolder = this.replaceAll(sFolder ,/\./,"-");  //Format CMD to be OK as ObjectName
-                            this.fSetValue2State(value,key,sFolder, oTree);
-                        }                          
+                        let sFolder = this.replaceAll(sAlias," ","_");     //Format CMD  to be OK as ObjectName
+                        sFolder = this.replaceAll(sFolder ,/\./,"-");  //Format CMD to be OK as ObjectName
+                        this.getChannelsOf(sFolder.split(".")[0],(err,channels) => {
+                            const channelnames = channels.map(channel => {return channel._id})
+                            for (const [key, value] of Object.entries(oTree)) { 
+                                this.fSetValue2State(value,key,sFolder, oTree, channelnames);
+                            }
+                            channelnames.forEach(channel => {
+                                this.fSetValue2State(false,"isAvailable",channel,oTree, channelnames);                              
+                            })   
+                        });                       
                     }
                 } catch (e) {
                     this.log.error("##### GetUbusCMD, " + sCMD + " + CatchError: " + e);

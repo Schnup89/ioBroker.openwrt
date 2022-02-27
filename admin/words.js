@@ -186,6 +186,10 @@ systemDictionary = {
         "pl": "Dodaj polecenie ubus",
         "zh-cn": "添加 ubus 命令"
     },
+    "list_commands-alias": {
+        "en": "Alias",
+        "de": "Alias"
+    },
     "list_commands-cmd": {
         "en": "ubus Command",
         "de": "ubus-Befehl",
