@@ -80,9 +80,12 @@ If there are some error's the button will get red, look at the ioBroker-Logs for
 
 ## Changelog
 
+### 0.0.3
+* (Schnup89) Merged PR15, Thanks to "TyrionWarMage", New Parameter "Alias" and "isAvailable"
+
 ### 0.0.2
 * (Schnup89) Merged PR13, Thanks to "TyrionWarMage", Parameter "Last Updated" is now set to the states
-* 
+
 ### 0.0.1
 * (Schnup89) initial release
 
