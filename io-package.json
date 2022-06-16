@@ -94,6 +94,7 @@
         "inp_refresh": 1,
         "list_commands": [ 
             {
+                "alias": "wan_status",
                 "cmd": "ubus call network.interface.wan status"
             } 
         ],
