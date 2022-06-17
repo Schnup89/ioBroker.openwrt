@@ -28,16 +28,16 @@
                 "zh-cn": "为状态添加了 Last-Update 键"
             },
             "0.0.3": {
-                "en": "Added Alias and isAvailable",
-                "de": "tbd",
-                "ru": "Добавлен ключ последнего обновления к состояниям",
-                "pt": "Adicionada a chave da última atualização aos estados",
-                "nl": "Last-Update-sleutel toegevoegd aan staten",
-                "fr": "Ajout de la clé de dernière mise à jour aux états",
-                "it": "Aggiunto tasto Ultimo aggiornamento agli stati",
-                "es": "Se agregó la clave de última actualización a los estados",
-                "pl": "Dodano klucz ostatniej aktualizacji do stanów",
-                "zh-cn": "为状态添加了 Last-Update 键"
+                  "en": "Added Alias and isAvailable",
+                "de": "Alias und isAvailable hinzugefügt",
+                "ru": "Добавлено Alias и доступно",
+                "pt": "Adicionado Alias e éDisponível",
+                "nl": "Toegevoegd Alias en is beschikbaar",
+                "fr": "Ajouté Alias et estDisponible",
+                "it": "Aggiunto Alias ed è disponibile",
+                "es": "Alias adicionales y está disponible",
+                "pl": "Added Alias and Is Available (ang.)",
+                "zh-cn": "增 编"
             }
         },
         "title": "OpenWRT",
@@ -94,7 +94,7 @@
         "supportCustoms": false,
         "dependencies": [
             {
-                "js-controller": ">=1.4.2"
+                "js-controller": ">=3.3.22"
             }
         ]
     },
