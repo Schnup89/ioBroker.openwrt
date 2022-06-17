@@ -1,6 +1,6 @@
 <img src="admin/openwrt.png" width="64">
 
-# ioBroker.openwrt  V0.0.3 seems broken, do not update
+# ioBroker.openwrt
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.openwrt.svg)](https://www.npmjs.com/package/iobroker.openwrt)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.openwrt.svg)](https://www.npmjs.com/package/iobroker.openwrt)
