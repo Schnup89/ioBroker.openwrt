@@ -172,7 +172,15 @@ systemDictionary = {
     },
     "text_settings": {
         "en": "You probably just need the left table with the Command-List<br>The table on the right should be used if a DataType is determined wrong for a created ioBroker-States [under Tab Objects] (type: Text, Boolean or Number)",
-        "de": "Du wirst in der Regel nur die linke Tabelle mit den Kommandos benötigen.<br>Die rechts Tabelle die nur zum korrieren der automatisch erkannten DatenTypen für ioBroker-States [im Objects-Tab] (Type: Text, Boolean oder Number)"
+        "de": "Du wirst in der Regel nur die linke Tabelle mit den Kommandos benötigen.<br>Die rechts Tabelle die nur zum korrieren der automatisch erkannten DatenTypen für ioBroker-States [im Objects-Tab] (Type: Text, Boolean oder Number)",
+        "ru": "Вам, наверное, просто нужен левый стол с Command-List<br>The table on the right должен быть использован, если DataType определен не так для созданных ioBroker-States [under Tab Objects] (type: Text, Boolean или Number)",
+        "pt": "Você provavelmente só precisa da tabela esquerda com o comando-List<br> A tabela à direita deve ser usada se um DataType é determinado errado para um ioBroker-States criado [sob objetos de guia] (tipo: texto, booleano ou número)",
+        "nl": "Je hebt waarschijnlijk de linkertafel nodig met de Command-List, de tafel aan de rechterkant zou moeten worden gebruikt als een DataType verkeerd vastgesteld is voor een gecreëerde ioBroker-States [onderwerp",
+        "fr": "Vous avez probablement juste besoin de la table de gauche avec le Command-List profanéLe tableau de droite devrait être utilisé si un DataType est déterminé à tort pour un ioBroker-States créé [sous les objets Tab] (type: Texte, Boolean ou Nombre)",
+        "it": "Probabilmente avete solo bisogno della tabella sinistra con il Comando-List <br> La tabella a destra dovrebbe essere utilizzata se un DataType è determinato sbagliato per uno ioBroker-States creato [sotto Oggetti della scheda] (tipo: Testo, Boolean o Numero)",
+        "es": "Usted probablemente sólo necesita la tabla izquierda con el Command-List obtenidosbr confianzaLa tabla sobre la derecha debe ser utilizada si un DataType está determinado mal para un ioBroker-States creado [bajo objetos de la pestaña] (tipo: Texto, Booleano o Número)",
+        "pl": "Prawdopodobnie potrzebujesz lewej tablicy z napisem Command-List<br> Tabela na prawej stronie powinna być używana, jeśli daneType jest zdeterminowana dla stworzonego ioBroker-States under Objects (typ: Text, Boolean lub Number)",
+        "zh-cn": "你可能只需要与指挥部-List <br>左面桌面,如果数据Type被确定为创建的OioBroker-States[根据Tab物体](原状、Bolean或编号)便应该使用该权利表。"
     },
     "lab_BtnAddCMD": {
         "en": "Add ubus Command",
@@ -188,7 +196,15 @@ systemDictionary = {
     },
     "list_commands-alias": {
         "en": "Alias",
-        "de": "Alias"
+        "de": "Alias",
+        "ru": "Алиас",
+        "pt": "Alias",
+        "nl": "Alias",
+        "fr": "Alias",
+        "it": "Alias",
+        "es": "Alias",
+        "pl": "Alias",
+        "zh-cn": "Aliasasas"
     },
     "list_commands-cmd": {
         "en": "ubus Command",
