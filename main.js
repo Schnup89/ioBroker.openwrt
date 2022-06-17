@@ -166,6 +166,7 @@ class Openwrt extends utils.Adapter {
         try {
             if (tmr_GetValues) {
                 clearInterval(tmr_GetValues);
+                clearTimeout(tmr_GetValues);
                 tmr_GetValues = null;
             }
             this.log.info("cleaned everything up...");
