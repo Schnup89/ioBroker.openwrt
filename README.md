@@ -79,9 +79,9 @@ If there are some error's the button will get red, look at the ioBroker-Logs for
 
 ## Changelog
 
-### 0.0.3
+### 0.0.4
 * (Schnup89) NPM
-* 
+
 ### 0.0.3
 * (Schnup89) Merged PR15, Thanks to "TyrionWarMage", New Parameter "Alias" and "isAvailable"
 
