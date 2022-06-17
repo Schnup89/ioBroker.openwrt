@@ -42,7 +42,6 @@
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
             $('#fTestURL').on('click', (function () {
-                alert(document.getElementById("inp_password").value);
                 //Add last / if not exists on URL
                 if ((document.getElementById("inp_url").value).slice(-1) != "/") {
                     document.getElementById("inp_url").value = document.getElementById("inp_url").value + "/";
