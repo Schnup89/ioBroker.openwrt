@@ -6,7 +6,6 @@
 [![Downloads](https://img.shields.io/npm/dm/iobroker.openwrt.svg)](https://www.npmjs.com/package/iobroker.openwrt)
 ![Number of Installations (latest)](http://iobroker.live/badges/openwrt-installed.svg)
 ![Number of Installations (stable)](http://iobroker.live/badges/openwrt-stable.svg)
-[![Dependency Status](https://img.shields.io/david/Schnup89/iobroker.openwrt.svg)](https://david-dm.org/Schnup89/iobroker.openwrt)
 [![Known Vulnerabilities](https://snyk.io/test/github/Schnup89/ioBroker.openwrt/badge.svg)](https://snyk.io/test/github/Schnup89/ioBroker.openwrt)
 
 [![NPM](https://nodei.co/npm/iobroker.openwrt.png?downloads=true)](https://nodei.co/npm/iobroker.openwrt/)
@@ -93,7 +92,7 @@ If there are some error's the button will get red, look at the ioBroker-Logs for
 ## License
 MIT License
 
-Copyright (c) 2020 Schnup89 <tobias_tsafi@gmx.de>
+Copyright (c) 2022 Schnup89 <tobias_tsafi@gmx.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
