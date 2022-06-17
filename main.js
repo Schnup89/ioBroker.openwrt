@@ -97,6 +97,18 @@ class Openwrt extends utils.Adapter {
         }
         this.log.debug("Decrypted the encrypted password!");
 
+        //Check for empty Commands or Alias, if found, preCheck = false
+        if (this.config.list_commands.length > 0) {
+            for (let nEntry = 0; nEntry < this.config.list_commands.length; nEntry++) {
+                if (!this.config.list_commands[nEntry].alias || !this.config.list_commands[nEntry].alias) {
+                    this.log.error("## Alias or Command-Entry empty, only Path-Check available");
+                    bPreCheckErr = true;  //Dont run
+                }
+            }
+        }else{
+            this.log.error("## No Commands defined, only Path-Check available");
+            bPreCheckErr = true;  //Dont run
+        }
         
         this.log.debug("##### RUN ADAPTER ##### ");
         if (!bPreCheckErr) {
