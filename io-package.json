@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "openwrt",
-        "version": "0.0.3",
+        "version": "0.0.4",
         "news": {
             "0.0.1": {
                 "en": "initial release",
@@ -38,6 +38,18 @@
                 "es": "Alias adicionales y está disponible",
                 "pl": "Added Alias and Is Available (ang.)",
                 "zh-cn": "增 编"
+            },
+            "0.0.4": {
+                "en": "NPM",
+                "de": "NPM",
+                "ru": "NPM",
+                "pt": "NPM",
+                "nl": "NPM",
+                "fr": "NPM",
+                "it": "NPM",
+                "es": "NPM",
+                "pl": "NPM",
+                "zh-cn": "NPM"
             }
         },
         "titleLang": {
