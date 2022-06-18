@@ -15,18 +15,23 @@
 
 This Adapter interacts with the OpenWrt RPC API of a OpenWrt-Device (Router, Switch, AccessPoint, RaspberryPI, etc.).
 
-**Reading data from ubus to ioBroker-Objects:** 
+**Reading data from ubus to ioBroker-Objects:**   
 At the moment only the "ubus call" results are fetched. With that commands you should get the most data out of the router. 
 The json-results are parsed and written to the objects database, <a href="https://openwrt.org/docs/techref/ubus">see here [ubus]</a>
 
-**Setting data with ubus from ioBroker to OpenWrt:**
+**Setting data with ubus from ioBroker to OpenWrt:**  
 You can send Commands to the router over the API with the State-Object "sendCommand".  
 Put in the command you want to send to the router, the result will be written as JSON-Object to the "sendCommandLastResult" Object and the "sendCommand"-Object will be cleared.
+
+**Aliases:**  
+Since V0.0.3 the feature "alias" is implemented, so we can change the name of the first tree-folder for the objects.  
+At the admin-panel both fields (alias, and command) have to be filled.  
+Until V0.0.3 the name of this folder was the command, see yellow marker.  
+![image](https://user-images.githubusercontent.com/28166743/174433331-64811b44-680a-4a76-91ac-31627cd85423.png)
 
 
 
 ### ToDo / new Features
-- ToDo: Initial Testing
 - ToDo: Dynamic Objects, see https://forum.iobroker.net/topic/32465/dynamischer-objektbaum (german)
 - Feature: Interface Handling (get Informations automaticly)
 
